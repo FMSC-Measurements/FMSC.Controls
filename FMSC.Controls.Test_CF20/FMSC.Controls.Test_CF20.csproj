@@ -2,23 +2,22 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProductVersion>9.0.21022</ProductVersion>
+    <ProductVersion>9.0.30729</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
-    <ProjectGuid>{E546F035-C403-454C-A2D1-586EA376D0ED}</ProjectGuid>
+    <ProjectGuid>{F67C261D-3D49-493E-90DB-79BF6CD75D6E}</ProjectGuid>
     <OutputType>WinExe</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>testBox</RootNamespace>
-    <AssemblyName>testBox</AssemblyName>
+    <RootNamespace>testbox_CE_20</RootNamespace>
+    <AssemblyName>testbox_CE_20</AssemblyName>
     <ProjectTypeGuids>{4D628B5B-2FBC-4AA6-8C16-197242AEB884};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
-    <PlatformFamilyName>PocketPC</PlatformFamilyName>
-    <PlatformID>b2c48bd2-963d-4549-9169-1fa021dce484</PlatformID>
-    <OSVersion>5.02</OSVersion>
-    <DeployDirSuffix>testBox</DeployDirSuffix>
-    <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
-    <NativePlatformName>Windows Mobile 6 Professional SDK</NativePlatformName>
+    <PlatformFamilyName>WindowsCE</PlatformFamilyName>
+    <PlatformID>E2BECB1F-8C8C-41ba-B736-9BE7D946A398</PlatformID>
+    <OSVersion>5.0</OSVersion>
+    <DeployDirSuffix>testbox_CE_20</DeployDirSuffix>
+    <TargetFrameworkVersion>v2.0</TargetFrameworkVersion>
+    <NativePlatformName>Windows CE</NativePlatformName>
     <FormFactorID>
     </FormFactorID>
-    <StartupObject>testBox.Program</StartupObject>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -52,6 +51,7 @@
     <Reference Include="System.Data" />
     <Reference Include="System.Drawing" />
     <Reference Include="System.Windows.Forms" />
+    <Reference Include="System.Windows.Forms.DataGrid" />
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
@@ -75,28 +75,15 @@
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
       <SubType>Designer</SubType>
     </EmbeddedResource>
-    <EmbeddedResource Include="TestBeep.resx">
-      <DependentUpon>TestBeep.cs</DependentUpon>
-      <SubType>Designer</SubType>
-    </EmbeddedResource>
     <Compile Include="Properties\Resources.Designer.cs">
       <AutoGen>True</AutoGen>
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
-    <Compile Include="TestBeep.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="TestBeep.Designer.cs">
-      <DependentUpon>TestBeep.cs</DependentUpon>
-    </Compile>
   </ItemGroup>
   <ItemGroup>
-    <None Include="Properties\DataSources\something.datasource" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\FMSC.Controls\FMSCUI_WM5_CF35.csproj">
-      <Project>{BCBB9EB8-6CEF-48CA-B000-3D1BA1772087}</Project>
-      <Name>FMSCUI_WM5_CF35</Name>
+    <ProjectReference Include="..\FMSC.Controls\FMSC.Controls_CF20.csproj">
+      <Project>{66B57265-EED3-49D7-B3B7-68CDE1061085}</Project>
+      <Name>FMSC.Controls_CF20</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CompactFramework.CSharp.targets" />

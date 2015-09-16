@@ -1,17 +1,17 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 10.00
 # Visual Studio 2008
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FMSC.Controls", "FMSC.Controls\FMSC.Controls.VS08.csproj", "{83CCFC7F-D667-4550-B335-B48C2F67A207}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FMSC.Controls.VS08", "FMSC.Controls\FMSC.Controls.VS08.csproj", "{83CCFC7F-D667-4550-B335-B48C2F67A207}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FMSC.Controls_CF35", "FMSC.Controls\FMSC.Controls_CF35.csproj", "{FF9E5A41-F83C-4D20-823B-4901876D60E3}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FMSC.Controls_CF20", "FMSC.Controls\FMSC.Controls_CF20.csproj", "{66B57265-EED3-49D7-B3B7-68CDE1061085}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "testBox", "testBox\testBox.csproj", "{E546F035-C403-454C-A2D1-586EA376D0ED}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FMSC.Controls.Test_CF35", "FMSC.Controls.Test_CF35\FMSC.Controls.Test_CF35.csproj", "{E546F035-C403-454C-A2D1-586EA376D0ED}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{F68E8889-C7B7-4D45-976C-3F3AF1BD5CBA}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "testbox_CF20", "testbox_CE_20\testbox_CF20.csproj", "{F67C261D-3D49-493E-90DB-79BF6CD75D6E}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FMSC.Controls.Test_CF20", "FMSC.Controls.Test_CF20\FMSC.Controls.Test_CF20.csproj", "{F67C261D-3D49-493E-90DB-79BF6CD75D6E}"
 EndProject
 Global
 	GlobalSection(SubversionScc) = preSolution

@@ -56,8 +56,10 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Class1.cs">
+      <SubType>Form</SubType>
     </Compile>
     <Compile Include="Form1.cs">
+      <SubType>Form</SubType>
     </Compile>
     <Compile Include="Form1.Designer.cs">
       <DependentUpon>Form1.cs</DependentUpon>
@@ -90,6 +92,12 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="Properties\DataSources\something.datasource" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\FMSC.Controls\FMSC.Controls_CF35.csproj">
+      <Project>{FF9E5A41-F83C-4D20-823B-4901876D60E3}</Project>
+      <Name>FMSC.Controls_CF35</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CompactFramework.CSharp.targets" />
   <ProjectExtensions>
