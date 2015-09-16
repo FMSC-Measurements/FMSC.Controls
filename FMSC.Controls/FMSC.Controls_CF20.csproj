@@ -4,17 +4,17 @@
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProductVersion>9.0.30729</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
-    <ProjectGuid>{FF9E5A41-F83C-4D20-823B-4901876D60E3}</ProjectGuid>
+    <ProjectGuid>{66B57265-EED3-49D7-B3B7-68CDE1061085}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>FMSCUI_CE_CF35</RootNamespace>
-    <AssemblyName>FMSCUI_CE_CF35</AssemblyName>
+    <RootNamespace>FMSC.Controls</RootNamespace>
+    <AssemblyName>FMSCUI_CE_CF20</AssemblyName>
     <ProjectTypeGuids>{4D628B5B-2FBC-4AA6-8C16-197242AEB884};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
     <PlatformFamilyName>WindowsCE</PlatformFamilyName>
     <PlatformID>E2BECB1F-8C8C-41ba-B736-9BE7D946A398</PlatformID>
     <OSVersion>5.0</OSVersion>
-    <DeployDirSuffix>FMSCUI_CE_CF35</DeployDirSuffix>
-    <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
+    <DeployDirSuffix>FMSCUI_CE_CF20</DeployDirSuffix>
+    <TargetFrameworkVersion>v2.0</TargetFrameworkVersion>
     <NativePlatformName>Windows CE</NativePlatformName>
     <FormFactorID>
     </FormFactorID>
@@ -24,7 +24,7 @@
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
     <OutputPath>bin\Debug\</OutputPath>
-    <DefineConstants>TRACE;DEBUG;NET_CF NET_35</DefineConstants>
+    <DefineConstants>TRACE;DEBUG;NET_CF NET_20</DefineConstants>
     <NoStdLib>true</NoStdLib>
     <NoConfig>true</NoConfig>
     <ErrorReport>prompt</ErrorReport>
@@ -36,7 +36,7 @@
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
     <OutputPath>bin\Release\</OutputPath>
-    <DefineConstants>TRACE;NET_CF NET_35</DefineConstants>
+    <DefineConstants>TRACE;NET_CF NET_20</DefineConstants>
     <NoStdLib>true</NoStdLib>
     <NoConfig>true</NoConfig>
     <ErrorReport>prompt</ErrorReport>
@@ -45,24 +45,30 @@
     <GenerateSerializationAssemblies>Off</GenerateSerializationAssemblies>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Microsoft.Windowsce.Forms" />
+    <Reference Include="CustomMarshalers" />
+    <Reference Include="Microsoft.WindowsCE.Forms" />
     <Reference Include="mscorlib" />
     <Reference Include="System" />
-    <Reference Include="System.Core" />
+    <Reference Include="System.Data" />
     <Reference Include="System.Drawing" />
     <Reference Include="System.Windows.Forms" />
-    <Reference Include="System.Xml.Linq" />
-    <Reference Include="System.Data.DataSetExtensions" />
-    <Reference Include="System.Data" />
+    <Reference Include="System.Windows.Forms.DataGrid" />
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Common.cs" />
+    <Compile Include="Common\Enums.cs" />
     <Compile Include="CustomForm.cs">
       <SubType>Form</SubType>
     </Compile>
     <Compile Include="DeviceInfo.cs" />
+    <Compile Include="DpiHelper.cs" />
     <Compile Include="HLSColor.cs" />
+    <Compile Include="Mobile\ButtonPanel.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Mobile\ComboBoxRedux.CF20.cs">
+      <SubType>Component</SubType>
+    </Compile>
     <Compile Include="Mobile\ComboBoxRedux.cs">
       <SubType>Component</SubType>
     </Compile>
@@ -108,12 +114,14 @@
     <Compile Include="Mobile\OpenFileDialogRedux.cs">
       <SubType>Component</SubType>
     </Compile>
-    <Compile Include="Properties\AssemblyInfo_CE_CF35.cs" />
+    <Compile Include="Mobile\System.Windows.Forms.cs" />
+    <Compile Include="Properties\AssemblyInfo_CE_CF20.cs" />
     <Compile Include="Win32.cs" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Mobile\FolderBrowserDialogCF.resx">
       <DependentUpon>FolderBrowserDialogCF.cs</DependentUpon>
+      <SubType>Designer</SubType>
     </EmbeddedResource>
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CompactFramework.CSharp.targets" />
