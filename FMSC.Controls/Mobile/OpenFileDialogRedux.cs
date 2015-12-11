@@ -715,11 +715,12 @@ namespace FMSC.Controls {
             if(lstFiles.SelectedIndices.Count > 0 && lstFiles.Focused) // Item was selected in the file list
             { 
                 selectedItem = lstFiles.Items[lstFiles.SelectedIndices[0]] as ListViewItem;
-                String path = ((Win32.SHFILEINFO)selectedItem.Tag).szDisplayName;
-                if (Path.HasExtension(path) == false) 
+                String path = ((Win32.SHFILEINFO)selectedItem.Tag).szDisplayName;  
+                var file = new FileInfo(path);
+                if ((file.Attributes & FileAttributes.Directory) == FileAttributes.Directory) 
                 {
                     ShowDirectory(new DirectoryInfo(path));
-                    return false;
+                    return false; 
                 }
 
                 SelectedFile = new FileInfo(path);
