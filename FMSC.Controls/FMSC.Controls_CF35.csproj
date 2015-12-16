@@ -108,6 +108,9 @@
     <Compile Include="Mobile\OpenFileDialogRedux.cs">
       <SubType>Component</SubType>
     </Compile>
+    <Compile Include="Mobile\OpenFileDialogReduxControl.cs">
+      <SubType>Form</SubType>
+    </Compile>
     <Compile Include="Properties\AssemblyInfo_CE_CF35.cs" />
     <Compile Include="Win32.cs" />
   </ItemGroup>
