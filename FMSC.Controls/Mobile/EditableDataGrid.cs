@@ -710,7 +710,7 @@ namespace FMSC.Controls
         //listen to mouse clicks to allow IClickableDataGridColumns to handle MouseDown events
         protected override void OnMouseDown(MouseEventArgs mea)
         {
-            //base.OnMouseDown(mea);
+            
             //Point point = this.PointToClient(new Point(mea.X, mea.Y));
             DataGrid.HitTestInfo hitTest;
             try
@@ -728,32 +728,39 @@ namespace FMSC.Controls
                 DataGridTableStyle tableStyle = this.TableStyle;
                 column = tableStyle.GridColumnStyles[hitTest.Column] as IClickableDataGridColumn;
             }
-            //else if (hitTest.Type == HitTestType.None)//clicks on the background of the grid can be used to add rows
-            //{
-            //    this.UserAddRow();
-            //}
 
             
             if (column != null)
             {
                 column.HandleMouseDown(hitTest.Row, mea);
+
+                var cellBounds = this.GetCellBounds(hitTest.Row, hitTest.Column);
+                this.Invalidate(cellBounds);
+                this.Update();
             }
-            else
-            {
-                base.OnMouseDown(mea);
-            }
+            //else
+            //{
+            //    base.OnMouseDown(mea);
+            //}
+            base.OnMouseDown(mea);
 
         }
+
 
         //listen to mouse clicks to allow IClickableDataGridColumns to handle Mouse click events
         protected override void OnMouseUp(MouseEventArgs mea)
         {
-           
-            //base.OnMouseUp(mea);
-            //Point point = this.PointToClient(new Point(mea.X, mea.Y));
-            //DataGrid.HitTestInfo hitTest = this.HitTest(point.X, point.Y);
             IClickableDataGridColumn column = null;
-            DataGrid.HitTestInfo hitTest = this.HitTest(mea.X, mea.Y);
+            DataGrid.HitTestInfo hitTest;
+            try
+            {
+                hitTest = this.HitTest(mea.X, mea.Y);
+            }
+            catch
+            {
+                return;
+            }
+
             if (hitTest.Row >= 0)                                                        //check click is in row, not header or invalid 
             {
                 DataGridTableStyle tableStyle = this.TableStyle;
@@ -762,12 +769,19 @@ namespace FMSC.Controls
             if (column != null)                                                         //check that column is clickable, if so intercept click
             {                                                                           //dont call base.OnmouseUp if clickable because we dont want to Select the cell, just click it
                 column.HandleMouseClick(hitTest.Row);
+
+                var cellBounds = this.GetCellBounds(hitTest.Row, hitTest.Column);
+                this.Invalidate(cellBounds);
+                this.Update();
             }
-            else
-            {
-                base.OnMouseUp(mea);
-            }
+            //else
+            //{
+            //    base.OnMouseUp(mea);
+            //}
+            base.OnMouseUp(mea);
         }
+
+
 
 
         #region IKeyPressProcssor Members

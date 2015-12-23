@@ -416,7 +416,6 @@ namespace FMSC.Controls
         {
             this._mouseDown = true;
             this._mouseRowNum = rowNum;
-            this.Owner.Invalidate();
 
             //Graphics g = Owner.CreateGraphics();
             //try
@@ -435,7 +434,6 @@ namespace FMSC.Controls
             {
                 this._mouseDown = false;
                 this._mouseRowNum = -1;
-                this.Owner.Invalidate();
             }
         }
 
@@ -446,7 +444,6 @@ namespace FMSC.Controls
             {
                 this._mouseDown = false;
                 this._mouseRowNum = -1;
-                this.Owner.Invalidate();
             }
 
             if (this.Click != null)
