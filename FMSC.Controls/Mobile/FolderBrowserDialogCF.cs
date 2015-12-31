@@ -53,9 +53,9 @@ namespace FMSC.Controls
                             lstFolders.Items.Add(di.Name);
                         }
                     }
-                    catch (Exception e)
+                    catch (Exception)
                     {
-                        MessageBox.Show("Unable to load subfolders");
+                        MessageBox.Show("Unable to access selected folder");
                     }
 
                     if (curDir != null && curDir.Parent != null)

@@ -560,7 +560,7 @@ namespace FMSC.Controls
             catch (Exception e)
             {
                 System.Diagnostics.Debug.WriteLine(e.ToString());
-                MessageBox.Show("Unable to load sub-directories. Check the drive for errors.");
+                MessageBox.Show("Unable to access selected folder");
                 return new Win32.SHFILEINFO[0];//return empty array
             }
 
