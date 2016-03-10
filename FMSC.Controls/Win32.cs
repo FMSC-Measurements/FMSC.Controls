@@ -7,7 +7,7 @@ namespace FMSC.Controls
 
     public class Win32
     {
-        public const static int BS_MULTILINE = 0x00002000; // Button Style Multiline
+        public const int BS_MULTILINE = 0x00002000; // Button Style Multiline
 
         #region Structures 
         [StructLayout(LayoutKind.Sequential)]
