@@ -263,6 +263,7 @@ namespace FMSC.Controls
                         this.UnwireDataSource();
                     }
                 }
+
                 base.DataSource = value;
                 dataSourceChanged = true;
 
@@ -550,6 +551,8 @@ namespace FMSC.Controls
         {
             IBindingList ibList = (IBindingList)this.DataSource;
 
+            ibList.ListChanged += new ListChangedEventHandler(BindingListChanged);
+
             foreach (INotifyDataErrorInfo indei in ibList)
             {
                 indei.ErrorsChanged -= new EventHandler<DataErrorsChangedEventArgs>(OnItemErrorChanged);
@@ -559,6 +562,8 @@ namespace FMSC.Controls
         private void UnwireDataSourceBinding()
         {
             IBindingList ibList = (IBindingList)this.DataSource;
+
+            ibList.ListChanged -= new ListChangedEventHandler(BindingListChanged);
 
             foreach (INotifyDataErrorInfo indei in ibList)
             {
@@ -574,11 +579,9 @@ namespace FMSC.Controls
 
             dataSourceIsCompatible = false;
 
-            if (this.DataSource != null && DataSource.GetType().IsAssignableFrom(typeof(IBindingList)))
+            if (this.DataSource != null && DataSource is IBindingList)
             {
                 IBindingList ibList = (IBindingList)this.DataSource;
-
-                ibList.ListChanged += new ListChangedEventHandler(BindingListChanged);
 
                 Type itemType = ibList.GetType().GetProperty("Item").PropertyType;
 
@@ -611,6 +614,8 @@ namespace FMSC.Controls
 
         private void OnItemErrorChanged(object sender, DataErrorsChangedEventArgs e)
         {
+            Refresh();
+            
             if (ItemErrorChanged != null)
             {
                 ItemErrorChanged(sender, e);
