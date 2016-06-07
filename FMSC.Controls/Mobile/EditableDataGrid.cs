@@ -43,6 +43,7 @@ namespace FMSC.Controls
         //public event EditableDataGridRowAddedEventHandler NewRowAdded;
         public event EditableDataGridCellValidatingEventHandler CellValidating;
         public event EditableDataGridCellValueChangedEventHandler CellValueChanged;
+        public event EventHandler<DataErrorsChangedEventArgs> ItemErrorChanged;
         #endregion
 
         #region static fields
@@ -262,15 +263,14 @@ namespace FMSC.Controls
                         this.UnwireDataSource();
                     }
                 }
-                base.DataSource = value; 
+                base.DataSource = value;
+                dataSourceChanged = true;
 
                 if(this.CurrencyManager != null)
                 {
                     this.WireDataSource();
                 }
             }
-
-
         }
 
 
@@ -530,12 +530,93 @@ namespace FMSC.Controls
         {
             this.CurrencyManager.MetaDataChanged -= this.DataSource_MetaDataChanged;
 
+            if (IsDataSourceINotifyDataErrorCompatible())
+            {
+                UnwireDataSourceBinding();
+            }
         }
 
         private void WireDataSource()
         {
             this.CurrencyManager.MetaDataChanged += this.DataSource_MetaDataChanged; 
+
+            if (IsDataSourceINotifyDataErrorCompatible())
+            {
+                WireDataSourceBinding();
+            }
         }
+
+        private void WireDataSourceBinding()
+        {
+            IBindingList ibList = (IBindingList)this.DataSource;
+
+            foreach (INotifyDataErrorInfo indei in ibList)
+            {
+                indei.ErrorsChanged -= new EventHandler<DataErrorsChangedEventArgs>(OnItemErrorChanged);
+            }
+        }
+
+        private void UnwireDataSourceBinding()
+        {
+            IBindingList ibList = (IBindingList)this.DataSource;
+
+            foreach (INotifyDataErrorInfo indei in ibList)
+            {
+                indei.ErrorsChanged += new EventHandler<DataErrorsChangedEventArgs>(OnItemErrorChanged);
+            }
+        }
+
+        private bool dataSourceChanged, dataSourceIsCompatible;
+        private bool IsDataSourceINotifyDataErrorCompatible()
+        {
+            if (!dataSourceChanged)
+                return dataSourceIsCompatible;
+
+            dataSourceIsCompatible = false;
+
+            if (this.DataSource != null && DataSource.GetType().IsAssignableFrom(typeof(IBindingList)))
+            {
+                IBindingList ibList = (IBindingList)this.DataSource;
+
+                ibList.ListChanged += new ListChangedEventHandler(BindingListChanged);
+
+                Type itemType = ibList.GetType().GetProperty("Item").PropertyType;
+
+                if (itemType.IsAssignableFrom(typeof(INotifyDataErrorInfo)))
+                {
+                    dataSourceIsCompatible = true;
+                }
+            }
+
+            dataSourceChanged = false;
+            return dataSourceIsCompatible;
+        }
+
+        void BindingListChanged(object sender, ListChangedEventArgs e)
+        {
+            switch (e.ListChangedType)
+            {
+                case ListChangedType.ItemAdded:
+                    ((INotifyDataErrorInfo)sender).ErrorsChanged += OnItemErrorChanged;
+                    break;
+                case ListChangedType.ItemDeleted:
+                    ((INotifyDataErrorInfo)sender).ErrorsChanged -= OnItemErrorChanged;
+                    break;
+                case ListChangedType.Reset:
+                    UnwireDataSourceBinding();
+                    WireDataSourceBinding();
+                    break;
+            }
+        }
+
+        private void OnItemErrorChanged(object sender, DataErrorsChangedEventArgs e)
+        {
+            if (ItemErrorChanged != null)
+            {
+                ItemErrorChanged(sender, e);
+            }
+        }
+
 
         private void WireGridEvents()
         {
