@@ -47,7 +47,7 @@
   <ItemGroup>
     <Reference Include="FMSC.Core, Version=1.0.0.26522, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\FMSC.Core\Net35\FMSC.Core.dll</HintPath>
+      <HintPath>$(SolutionDir)\FMSC.Core\Net35\FMSC.Core.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.Windowsce.Forms" />
     <Reference Include="mscorlib" />
