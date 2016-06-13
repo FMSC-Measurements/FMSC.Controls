@@ -1,12 +1,11 @@
 ﻿using System;
+using System.ComponentModel;
 using System.Drawing;
 using System.Reflection;
 using System.Windows.Forms;
-using System.ComponentModel;
 
-namespace FMSC.Controls 
+namespace FMSC.Controls
 {
-
     //public enum DataGridAutoSizeMode
     //{
     //    NotSet = 0,
@@ -22,17 +21,20 @@ namespace FMSC.Controls
     public class EditableDataGridCellValidatingEventArgs
     {
         public bool Cancel { get; set; }
+
         public DataGridColumnStyle Column { get; set; }
+
         public int RowIndex { get; set; }
+
         public object Value { get; set; }
     }
 
     public class EditableDataGridCellEventArgs
     {
         public DataGridColumnStyle Column { get; set; }
+
         public int RowIndex { get; set; }
     }
-
 
     public delegate void EditableDataGridCellValidatingEventHandler(Object sender, EditableDataGridCellValidatingEventArgs e);
     public delegate void EditableDataGridCellValueChangedEventHandler(Object sender, EditableDataGridCellEventArgs e);
@@ -40,23 +42,24 @@ namespace FMSC.Controls
     public partial class EditableDataGrid : DataGrid, System.ComponentModel.ISupportInitialize, IKeyPressProcessor
     {
         #region events
+
         //public event EditableDataGridRowAddedEventHandler NewRowAdded;
         public event EditableDataGridCellValidatingEventHandler CellValidating;
+
         public event EditableDataGridCellValueChangedEventHandler CellValueChanged;
-        public event EventHandler<DataErrorsChangedEventArgs> ItemErrorChanged;
-        #endregion
+
+        #endregion events
 
         #region static fields
 
         private static FieldInfo _firstRowVisableAccessor;
         private static FieldInfo _tableStyleAccessor;
-        
 
-        #if !NET_CF
+#if !NET_CF
         private static  FieldInfo _alternatingBackBrushAccessor;
-        #endif 
+#endif
 
-        #endregion 
+        #endregion static fields
 
         private SolidBrush _altTextBrush;
         private Color _errorColor;
@@ -64,11 +67,8 @@ namespace FMSC.Controls
         private bool _isScrolling;
         private int _homeColumnIndex = 0;
         private EditableColumnBase _editColumn = null;
-        
 
-
-
-        #region reflected properties 
+        #region reflected properties
 
 #if !NET_CF
         internal SolidBrush AlternatingBackBrush { get { return _alternatingBackBrushAccessor.GetValue(this) as SolidBrush; } }
@@ -81,14 +81,13 @@ namespace FMSC.Controls
             get
             {
                 return (DataGridTableStyle)_tableStyleAccessor.GetValue(this);
-
             }
         }
 
-        #endregion 
-
+        #endregion reflected properties
 
         #region Public Properties
+
         public bool AllowUserToAddRows { get; set; }
 
         public int ColumnCount
@@ -120,6 +119,7 @@ namespace FMSC.Controls
         [Browsable(false)]
         [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
 #endif
+
         public int CurrentColumnIndex
         {
             get
@@ -132,7 +132,6 @@ namespace FMSC.Controls
             }
         }
 
-
         public int HomeColumnIndex
         {
             get { return _homeColumnIndex; }
@@ -142,6 +141,7 @@ namespace FMSC.Controls
 #if !NET_CF
         [Browsable(false)]
 #endif
+
         public string HomeColumn
         {
             get { return TableStyle.GridColumnStyles[HomeColumnIndex].MappingName; }
@@ -189,9 +189,10 @@ namespace FMSC.Controls
             }
         }
 
-        #endregion
+        #endregion Public Properties
 
         internal bool IsEditing { get; set; }
+
         private SolidBrush AltTextBrush
         {
             get
@@ -204,7 +205,8 @@ namespace FMSC.Controls
             }
         }
 
-        private Pen _forePen; 
+        private Pen _forePen;
+
         internal Pen ForePen
         {
             get
@@ -217,10 +219,8 @@ namespace FMSC.Controls
             }
         }
 
+        internal SolidBrush ErrorBrush { get; set; }
 
-        internal SolidBrush ErrorBrush { get;  set; }
-
-        
         internal EditableColumnBase EditColumn
         {
             get
@@ -237,7 +237,7 @@ namespace FMSC.Controls
         internal CurrencyManager CurrencyManager
         {
             get
-            {    
+            {
 #if NET_CF
                 return (CurrencyManager)_listManagerAccessor.GetValue(this);
 #else
@@ -245,8 +245,6 @@ namespace FMSC.Controls
 #endif
             }
         }
-
-
 
         public new object DataSource
         {
@@ -263,33 +261,27 @@ namespace FMSC.Controls
                         this.UnwireDataSource();
                     }
                 }
-
                 base.DataSource = value;
-                dataSourceChanged = true;
 
-                if(this.CurrencyManager != null)
+                if (this.CurrencyManager != null)
                 {
                     this.WireDataSource();
                 }
             }
         }
 
-
-
-        
         #region Ctor
 
         //this is the static constructor, where we initialize our static variables
         static EditableDataGrid()
         {
-            #if NET_CF
+#if NET_CF
             MobileOnlyStaticInit();
-            #else
+#else
             _firstRowVisableAccessor = typeof(DataGrid).GetField("firstVisableRow", BindingFlags.NonPublic | BindingFlags.Instance);
             _alternatingBackBrushAccessor = typeof(DataGrid).GetField("alternatingBackBrush", BindingFlags.NonPublic | BindingFlags.Instance);
             _tableStyleAccessor = typeof(DataGrid).GetField("myGridTable", BindingFlags.NonPublic | BindingFlags.Instance);
-            #endif
-
+#endif
         }
 
         public EditableDataGrid()
@@ -297,15 +289,14 @@ namespace FMSC.Controls
         {
             this.WireGridEvents();
         }
-        #endregion
+
+        #endregion Ctor
 
         //protected override void OnBindingContextChanged(EventArgs e)
         //{
         //    base.OnBindingContextChanged(e);
 
         //}
-
-        
 
         protected virtual void OnReadOnlyChanged()
         {
@@ -320,7 +311,6 @@ namespace FMSC.Controls
             }
             //this.Invalidate();
         }
-
 
         //public void CancelAddRow()
         //{
@@ -359,9 +349,8 @@ namespace FMSC.Controls
         {
             if (this.CurrencyManager == null || this.TableStyle == null) { return; }
             this.CurrencyManager.AddNew();
-            this.Invalidate();            
+            this.Invalidate();
         }
-
 
         public bool UserAddRow()
         {
@@ -378,12 +367,12 @@ namespace FMSC.Controls
 
         public void MoveFirstEmptyCell()
         {
-            if(this.TableStyle == null) { return; }
+            if (this.TableStyle == null) { return; }
             object rowData = this.CurrencyManager.List[this.CurrentRowIndex];
-            for(int i = 0; i < this.TableStyle.GridColumnStyles.Count; i++)
+            for (int i = 0; i < this.TableStyle.GridColumnStyles.Count; i++)
             {
                 DataGridColumnStyle col = this.TableStyle.GridColumnStyles[i];
-                if(!this.IsColumnDisplayable(col)) {continue; }
+                if (!this.IsColumnDisplayable(col)) { continue; }
                 object cellValue = col.PropertyDescriptor.GetValue(rowData);
                 if (cellValue == null)
                 {
@@ -402,7 +391,6 @@ namespace FMSC.Controls
                     return;
                 }
             }
-
         }
 
         public bool MoveSeclection(Direction direction)
@@ -517,111 +505,21 @@ namespace FMSC.Controls
             }
             else                                                                                    //we aren't on a end column
             {
-                this.MoveSeclection((forward) ? Direction.Right: Direction.Left);                             //move cell (left or right)
+                this.MoveSeclection((forward) ? Direction.Right : Direction.Left);                             //move cell (left or right)
             }
 
-            
             return true;
         }
-
-
-
 
         private void UnwireDataSource()
         {
             this.CurrencyManager.MetaDataChanged -= this.DataSource_MetaDataChanged;
-
-            if (IsDataSourceINotifyDataErrorCompatible())
-            {
-                UnwireDataSourceBinding();
-            }
         }
 
         private void WireDataSource()
         {
-            this.CurrencyManager.MetaDataChanged += this.DataSource_MetaDataChanged; 
-
-            if (IsDataSourceINotifyDataErrorCompatible())
-            {
-                WireDataSourceBinding();
-            }
+            this.CurrencyManager.MetaDataChanged += this.DataSource_MetaDataChanged;
         }
-
-        private void WireDataSourceBinding()
-        {
-            IBindingList ibList = (IBindingList)this.DataSource;
-
-            ibList.ListChanged += new ListChangedEventHandler(BindingListChanged);
-
-            foreach (INotifyDataErrorInfo indei in ibList)
-            {
-                indei.ErrorsChanged -= new EventHandler<DataErrorsChangedEventArgs>(OnItemErrorChanged);
-            }
-        }
-
-        private void UnwireDataSourceBinding()
-        {
-            IBindingList ibList = (IBindingList)this.DataSource;
-
-            ibList.ListChanged -= new ListChangedEventHandler(BindingListChanged);
-
-            foreach (INotifyDataErrorInfo indei in ibList)
-            {
-                indei.ErrorsChanged += new EventHandler<DataErrorsChangedEventArgs>(OnItemErrorChanged);
-            }
-        }
-
-        private bool dataSourceChanged, dataSourceIsCompatible;
-        private bool IsDataSourceINotifyDataErrorCompatible()
-        {
-            if (!dataSourceChanged)
-                return dataSourceIsCompatible;
-
-            dataSourceIsCompatible = false;
-
-            if (this.DataSource != null && DataSource is IBindingList)
-            {
-                IBindingList ibList = (IBindingList)this.DataSource;
-
-                Type itemType = ibList.GetType().GetProperty("Item").PropertyType;
-
-                if (itemType.IsAssignableFrom(typeof(INotifyDataErrorInfo)))
-                {
-                    dataSourceIsCompatible = true;
-                }
-            }
-
-            dataSourceChanged = false;
-            return dataSourceIsCompatible;
-        }
-
-        void BindingListChanged(object sender, ListChangedEventArgs e)
-        {
-            switch (e.ListChangedType)
-            {
-                case ListChangedType.ItemAdded:
-                    ((INotifyDataErrorInfo)sender).ErrorsChanged += OnItemErrorChanged;
-                    break;
-                case ListChangedType.ItemDeleted:
-                    ((INotifyDataErrorInfo)sender).ErrorsChanged -= OnItemErrorChanged;
-                    break;
-                case ListChangedType.Reset:
-                    UnwireDataSourceBinding();
-                    WireDataSourceBinding();
-                    break;
-            }
-        }
-
-        private void OnItemErrorChanged(object sender, DataErrorsChangedEventArgs e)
-        {
-            Refresh();
-            
-            if (ItemErrorChanged != null)
-            {
-                ItemErrorChanged(sender, e);
-            }
-        }
-
 
         private void WireGridEvents()
         {
@@ -668,7 +566,7 @@ namespace FMSC.Controls
 
         protected virtual void OnCellValidating(EditableDataGridCellValidatingEventArgs e)
         {
-            if(CellValidating != null)
+            if (CellValidating != null)
             {
                 this.CellValidating(this, e);
             }
@@ -681,7 +579,7 @@ namespace FMSC.Controls
 
         protected virtual void OnCellValueChanged(EditableDataGridCellEventArgs e)
         {
-            if(this.CellValueChanged != null)
+            if (this.CellValueChanged != null)
             {
                 this.CellValueChanged(this, e);
             }
@@ -697,19 +595,14 @@ namespace FMSC.Controls
 
         protected override void OnLostFocus(EventArgs e)
         {
-            
             base.OnLostFocus(e);
         }
-
-
-        
 
         private void Edit()
         {
             this.InternalEndEdit();
             if (!this.ReadOnly)
             {
-                
                 this.EditColumn = this.CurrentCollumn as EditableColumnBase;
                 if (this.EditColumn != null)
                 {
@@ -723,12 +616,11 @@ namespace FMSC.Controls
                     catch
                     { /*fall thru*/}
                 }
-                //reset editing state, if all else fails 
+                //reset editing state, if all else fails
                 this.IsEditing = false;
                 this.EditColumn = null;
                 this.InternalEndEdit();
             }
-
         }
 
         protected void UpdateEditCell()
@@ -742,31 +634,26 @@ namespace FMSC.Controls
                     bounds = this.GetCellBounds(this.EditColumn.EditRow, this.EditColumn.ColumnOrdinal);
                     isvisable = this.GridRec.IntersectsWith(bounds);
                 }
-                catch(Exception e)
+                catch (Exception e)
                 {
                     System.Diagnostics.Debug.Write(e.ToString());
                 }
                 this.EditColumn.UpdateEditCell(bounds, isvisable);
             }
-
         }
-
 
         //protected void AbortEdit()
         //{
-
         //}
 
         public void EndEdit()
         {
             this.IsEditing = false;
             this.InternalEndEdit();
-            
         }
 
         private void InternalEndEdit()
         {
-            
             if (EditColumn != null)
             {
                 EditColumn.CommitEdit();
@@ -783,8 +670,6 @@ namespace FMSC.Controls
                 this.Focus();
             }
         }
-        
-        
 
         protected override void OnKeyDown(KeyEventArgs e)
         {
@@ -792,11 +677,10 @@ namespace FMSC.Controls
             if (e.Handled == true) { return; }
             base.OnKeyDown(e);
         }
-        
+
         //listen to mouse clicks to allow IClickableDataGridColumns to handle MouseDown events
         protected override void OnMouseDown(MouseEventArgs mea)
         {
-            
             //Point point = this.PointToClient(new Point(mea.X, mea.Y));
             DataGrid.HitTestInfo hitTest;
             try
@@ -815,7 +699,6 @@ namespace FMSC.Controls
                 column = tableStyle.GridColumnStyles[hitTest.Column] as IClickableDataGridColumn;
             }
 
-            
             if (column != null)
             {
                 column.HandleMouseDown(hitTest.Row, mea);
@@ -829,9 +712,7 @@ namespace FMSC.Controls
             //    base.OnMouseDown(mea);
             //}
             base.OnMouseDown(mea);
-
         }
-
 
         //listen to mouse clicks to allow IClickableDataGridColumns to handle Mouse click events
         protected override void OnMouseUp(MouseEventArgs mea)
@@ -847,7 +728,7 @@ namespace FMSC.Controls
                 return;
             }
 
-            if (hitTest.Row >= 0)                                                        //check click is in row, not header or invalid 
+            if (hitTest.Row >= 0)                                                        //check click is in row, not header or invalid
             {
                 DataGridTableStyle tableStyle = this.TableStyle;
                 column = tableStyle.GridColumnStyles[hitTest.Column] as IClickableDataGridColumn;
@@ -867,16 +748,14 @@ namespace FMSC.Controls
             base.OnMouseUp(mea);
         }
 
-
-
-
         #region IKeyPressProcssor Members
 
 #if NET_CF
+
         public bool ProcessDialogKey(Keys keyVal)
 #else
             //hide original member if not net cf
-        public new bool ProcessDialogKey(Keys keyVal)        
+        public new bool ProcessDialogKey(Keys keyVal)
 #endif
         {
             switch (keyVal)
@@ -888,7 +767,6 @@ namespace FMSC.Controls
                 case ((Keys.Left)):
                 case ((Keys.Control | Keys.Left)):
                     {
-                        
                         return this.MoveSeclection(Direction.Left);
                     }
                 case ((Keys.Control | Keys.Down)):
@@ -915,16 +793,13 @@ namespace FMSC.Controls
                     {
                         return this.MoveSeclection(Direction.Right);
                     }
-
             }
 
-            
             //we dont know how to handle the key press
-            //so, lets see if our parent want to 
+            //so, lets see if our parent want to
             IKeyPressProcessor p = this.Parent as IKeyPressProcessor;
             if (p == null) { return false; }
             return p.ProcessDialogKey(keyVal);
-            
         }
 
         public bool ProcessTabKey()
@@ -948,7 +823,6 @@ namespace FMSC.Controls
             return false;
         }
 
-
         public bool ProcessKeyPress(Keys keyVal)
         {
             switch (keyVal)
@@ -967,13 +841,13 @@ namespace FMSC.Controls
                     }
             }
             //we dont know how to handle the key press
-            //so, lets see if our parent want to 
+            //so, lets see if our parent want to
             IKeyPressProcessor p = this.Parent as IKeyPressProcessor;
             if (p == null) { return false; }
             return p.ProcessKeyPress(keyVal);
         }
 
-        #endregion
+        #endregion IKeyPressProcssor Members
 
         protected override void Dispose(bool disposing)
         {
@@ -999,9 +873,6 @@ namespace FMSC.Controls
         }
     }
 
-    
-
-
     //public class EditableDataGridRowAddedEventArgs
     //{
     //    public Object NewRow;
@@ -1010,5 +881,3 @@ namespace FMSC.Controls
 
     //public delegate void EditableDataGridRowAddedEventHandler(Object Sender, EditableDataGridRowAddedEventArgs e);
 }
-
-

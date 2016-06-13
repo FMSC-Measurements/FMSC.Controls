@@ -46,10 +46,6 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="CustomMarshalers" />
-    <Reference Include="FMSC.Core_CF20, Version=1.1.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>$(SolutionDir)\FMSC.Core\NetCF20\FMSC.Core_CF20.dll</HintPath>
-    </Reference>
     <Reference Include="Microsoft.WindowsCE.Forms" />
     <Reference Include="mscorlib" />
     <Reference Include="System" />
