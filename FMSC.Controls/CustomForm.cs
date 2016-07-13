@@ -1,5 +1,4 @@
-﻿
-using System.Windows.Forms;
+﻿using System.Windows.Forms;
 
 namespace FMSC.Controls
 {
@@ -12,6 +11,7 @@ namespace FMSC.Controls
         }
 
         private KeyPressDispatcher _keyPressDispatcher;
+
         protected KeyPressDispatcher KeyDispatcher
         {
             get
@@ -28,7 +28,6 @@ namespace FMSC.Controls
         //, but it will still fire OnKeyPress
         protected override void OnKeyDown(KeyEventArgs e)
         {
-
             //provide a case for each key press we want to handle
             switch (e.KeyData)
             {
@@ -57,21 +56,10 @@ namespace FMSC.Controls
                 default:
                     {
                         //optional general case for any key press
-                    base.OnKeyDown(e);
+                        base.OnKeyDown(e);
                         break;
                     }
-
             }
         }
-
-        //protected override void OnKeyPress(KeyPressEventArgs e)
-        //{
-        //    base.OnKeyPress(e);
-        //}
-
-       
-
-
-       
     }
 }

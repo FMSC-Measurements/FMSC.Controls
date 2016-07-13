@@ -1,20 +1,22 @@
 using System;
+using System.ComponentModel;
 using System.Drawing;
 using System.Windows.Forms;
-using System.ComponentModel;
 
-namespace FMSC.Controls 
+namespace FMSC.Controls
 {
     // This is our editable TextBox column.
     public class EditableTextBoxColumn : EditableColumnBase
     {
         #region Fields
+
         private int _maxTextLength = -1;
         private int _textWidth;
 
-        #endregion 
+        #endregion Fields
 
         #region Properties
+
         protected override bool CanShowHostedControlIfReadOnly
         {
             get { return true; }
@@ -23,7 +25,7 @@ namespace FMSC.Controls
         public int MaxTextLength
         {
             get { return this.TextBox.MaxLength; }
-            set 
+            set
             {
                 if (base._hostedControl != null)
                 {
@@ -36,6 +38,7 @@ namespace FMSC.Controls
         public bool MultiLine { get; set; }
 
 #if NET_CF
+
         public virtual TextBox TextBox
 #else
         public override TextBox TextBox
@@ -52,14 +55,13 @@ namespace FMSC.Controls
         /// </summary>
         public bool GoToNextColumnWhenTextCompleate { get; set; }
 
-        #endregion
-
-
+        #endregion Properties
 
         public EditableTextBoxColumn()
         { }
 
         #region override methods
+
         protected override void OnReadOnlyChanged()
         {
             base.OnReadOnlyChanged();
@@ -96,10 +98,7 @@ namespace FMSC.Controls
             //{
             //    this.UpdateHostedControl(_preValue);
             //}
-
         }
-
-        
 
         protected override object GetHostControlValue()
         {
@@ -124,15 +123,14 @@ namespace FMSC.Controls
             this.TextBox.Text = base.FormatText(cellValue);
         }
 
-
         protected override Control CreateHostedControl()
         {
             TextBox box = new EditableDataGridTextBox();                                            // Our hosted control is a TextBox
-            
+
             box.BorderStyle = BorderStyle.None;                                     // It has no border
             box.Multiline = this.MultiLine;
             box.ReadOnly = this.ReadOnly;
-            
+
             box.AcceptsReturn = false;
             box.TextAlign = this.Alignment;                                         // Set up aligment.
             if (this._maxTextLength != -1) { box.MaxLength = _maxTextLength; }
@@ -150,7 +148,7 @@ namespace FMSC.Controls
             base.DestroyHostedControl();
         }
 
-        #endregion
+        #endregion override methods
 
         protected void WireTextBoxEvents(TextBox textbox)
         {
@@ -180,19 +178,8 @@ namespace FMSC.Controls
             }
         }
 
-
-
         private class EditableDataGridTextBox : TextBox, IKeyPressProcessor
         {
-            public EditableDataGridTextBox()
-            { }
-
-            protected override void OnLostFocus(EventArgs e)
-            {
-                base.OnLostFocus(e);
-            }
-
-
             protected override void OnKeyDown(KeyEventArgs e)
             {
                 e.Handled = this.ProcessKeyPress(e.KeyData);
@@ -204,13 +191,7 @@ namespace FMSC.Controls
 
             #region IKeyPressProcssor Members
 
-            
-
-#if NET_CF
-            public bool ProcessDialogKey(Keys keyVal)            
-#else
-            public new bool  ProcessDialogKey(Keys keyVal)
-#endif
+            public bool ProcessDialogKey(Keys keyVal)
             {
                 switch (keyVal)
                 {
@@ -289,8 +270,8 @@ namespace FMSC.Controls
             {
                 switch (keyVal)
                 {
-                    case(Keys.Up):
-                    case(Keys.Down):
+                    case (Keys.Up):
+                    case (Keys.Down):
                     case (Keys.Left):
                     case (Keys.Right):
                         {
@@ -305,7 +286,7 @@ namespace FMSC.Controls
                 }
             }
 
-            #endregion
+            #endregion IKeyPressProcssor Members
         }
     }
 }

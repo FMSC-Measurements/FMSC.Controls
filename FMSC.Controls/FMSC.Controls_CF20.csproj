@@ -24,7 +24,7 @@
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
     <OutputPath>bin\Debug\</OutputPath>
-    <DefineConstants>TRACE;DEBUG;NET_CF NET_20</DefineConstants>
+    <DefineConstants>TRACE;DEBUG;NET_CF NetCF_20</DefineConstants>
     <NoStdLib>true</NoStdLib>
     <NoConfig>true</NoConfig>
     <ErrorReport>prompt</ErrorReport>
@@ -60,75 +60,72 @@
     <Compile Include="CustomForm.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="DeviceInfo.cs" />
-    <Compile Include="DpiHelper.cs" />
-    <Compile Include="HLSColor.cs" />
-    <Compile Include="Mobile\ButtonPanel.cs">
+    <Compile Include="FMSC.Controls.NetCF\DeviceInfo.cs" />
+    <Compile Include="FMSC.Controls.NetCF\DpiHelper.cs" />
+    <Compile Include="FMSC.Controls.NetCF\HLSColor.cs" />
+    <Compile Include="FMSC.Controls.NetCF\System.Windows.Forms\ImageLayout.cs" />
+    <Compile Include="FMSC.Controls.NetCF\ButtonPanel.cs">
       <SubType>UserControl</SubType>
     </Compile>
-    <Compile Include="Mobile\ComboBoxRedux.CF20.cs">
+    <Compile Include="FMSC.Controls.NetCF\ComboBoxRedux.cs">
       <SubType>Component</SubType>
     </Compile>
-    <Compile Include="Mobile\ComboBoxRedux.cs">
+    <Compile Include="FMSC.Controls.NetCF\CustomColumnBase.cs">
       <SubType>Component</SubType>
     </Compile>
-    <Compile Include="Mobile\CustomColumnBase.cs">
+    <Compile Include="FMSC.Controls.NetCF\DataGridButtonColumn.cs">
       <SubType>Component</SubType>
     </Compile>
-    <Compile Include="Mobile\DataGridButtonColumn.cs">
+    <Compile Include="FMSC.Controls.NetCF\EditableCheckBoxColumn.cs">
       <SubType>Component</SubType>
     </Compile>
-    <Compile Include="Mobile\EditableCheckBoxColumn.cs">
+    <Compile Include="FMSC.Controls.NetCF\EditableColumnBase.cs">
       <SubType>Component</SubType>
     </Compile>
-    <Compile Include="Mobile\EditableColumnBase.cs">
+    <Compile Include="FMSC.Controls.NetCF\EditableComboBoxColumn.cs">
       <SubType>Component</SubType>
     </Compile>
-    <Compile Include="Mobile\EditableComboBoxColumn.cs">
+    <Compile Include="FMSC.Controls.NetCF\EditableDataGrid.cs">
       <SubType>Component</SubType>
     </Compile>
-    <Compile Include="Mobile\EditableDataGrid.cs">
+    <Compile Include="FMSC.Controls.NetCF\EditableDateTimePickerColumn.cs">
       <SubType>Component</SubType>
     </Compile>
-    <Compile Include="Mobile\EditableDataGrid.MobileOnly.cs">
+    <Compile Include="FMSC.Controls.NetCF\EditableTextBoxColumn.cs">
       <SubType>Component</SubType>
     </Compile>
-    <Compile Include="Mobile\EditableDateTimePickerColumn.cs">
+    <Compile Include="FMSC.Controls.NetCF\EditableUpDownColumn.cs">
       <SubType>Component</SubType>
     </Compile>
-    <Compile Include="Mobile\EditableTextBoxColumn.cs">
-      <SubType>Component</SubType>
-    </Compile>
-    <Compile Include="Mobile\EditableUpDownColumn.cs">
-      <SubType>Component</SubType>
-    </Compile>
-    <Compile Include="Mobile\FolderBrowserDialogCF.cs">
+    <Compile Include="FMSC.Controls.NetCF\FolderBrowserDialogCF.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="Mobile\FolderBrowserDialogCF.Designer.cs">
+    <Compile Include="FMSC.Controls.NetCF\FolderBrowserDialogCF.Designer.cs">
       <DependentUpon>FolderBrowserDialogCF.cs</DependentUpon>
     </Compile>
-    <Compile Include="Mobile\IClickableDataGridColumn.cs" />
-    <Compile Include="Mobile\IKeyPressProcssor.cs" />
-    <Compile Include="Mobile\KeyPressDispatcher.cs" />
-    <Compile Include="Mobile\OpenFileDialogRedux.cs">
+    <Compile Include="FMSC.Controls.NetCF\IClickableDataGridColumn.cs" />
+    <Compile Include="FMSC.Controls.NetCF\IKeyPressProcssor.cs" />
+    <Compile Include="FMSC.Controls.NetCF\KeyPressDispatcher.cs" />
+    <Compile Include="FMSC.Controls.NetCF\OpenFileDialogRedux.cs">
       <SubType>Component</SubType>
     </Compile>
-    <Compile Include="Mobile\OpenFileDialogReduxControl.cs">
+    <Compile Include="FMSC.Controls.NetCF\OpenFileDialogReduxControl.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="Mobile\System.Windows.Forms.cs" />
     <Compile Include="Properties\AssemblyInfo_CE_CF20.cs" />
     <Compile Include="Win32.cs" />
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="Mobile\FolderBrowserDialogCF.resx">
+    <EmbeddedResource Include="FMSC.Controls.NetCF\FolderBrowserDialogCF.resx">
       <DependentUpon>FolderBrowserDialogCF.cs</DependentUpon>
       <SubType>Designer</SubType>
     </EmbeddedResource>
-    <EmbeddedResource Include="Mobile\OpenFileDialogReduxControl.resx">
+    <EmbeddedResource Include="FMSC.Controls.NetCF\OpenFileDialogReduxControl.resx">
       <DependentUpon>OpenFileDialogReduxControl.cs</DependentUpon>
     </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Mobile\" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CompactFramework.CSharp.targets" />
   <ProjectExtensions>

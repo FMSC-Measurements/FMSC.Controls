@@ -1,7 +1,6 @@
 ﻿using System;
-using System.Windows.Forms;
 using System.Collections;
-using System.ComponentModel;
+using System.Windows.Forms;
 
 namespace FMSC.Controls.Mobile
 {
@@ -13,7 +12,19 @@ namespace FMSC.Controls.Mobile
             this.Validating += new System.ComponentModel.CancelEventHandler(HandleValidating);
         }
 
-
+        public bool DroppedDown
+        {
+            get
+            {
+                IntPtr hndl = this.Handle;
+                if (hndl == IntPtr.Zero) { return false; } //handle has not been created
+                return FMSC.Controls.Win32.SendMessage(hndl, FMSC.Controls.Win32.CB_GETDROPPEDSTATE, 1, 0) != 0;
+            }
+            set
+            {
+                FMSC.Controls.Win32.SendMessage(this.Handle, FMSC.Controls.Win32.CB_SHOWDROPDOWN, value ? 1 : 0, 0);
+            }
+        }
 
         public new object SelectedItem
         {
@@ -41,25 +52,35 @@ namespace FMSC.Controls.Mobile
             {
                 base.SelectedItem = value;
             }
-
         }
 
+#if NetCF_20
 
-
-        public bool DroppedDown
+        /// <summary>
+        /// Gets and Sets the location of the cursor in the textbox portion of the combobox
+        /// </summary>
+        public int SelectionStart
         {
             get
             {
                 IntPtr hndl = this.Handle;
-                if (hndl == IntPtr.Zero) { return false; } //handle has not been created
-                return FMSC.Controls.Win32.SendMessage(hndl, FMSC.Controls.Win32.CB_GETDROPPEDSTATE, 1, 0) != 0;
-
+                int wpram = 0;
+                int returnval;
+                if (hndl == IntPtr.Zero) { return 0; }
+                {
+                    returnval = FMSC.Controls.Win32.SendMessage(hndl, 320, wpram, 0);// close, first few bits of return is the actual index perhaps it has something to do with textbox max size of ?? 32766 ( look it up!)
+                    returnval = returnval & 0xFFFF;         //use 16 bit mask to get actual value
+                }
+                return returnval;
             }
+
             set
             {
-                FMSC.Controls.Win32.SendMessage(this.Handle, FMSC.Controls.Win32.CB_SHOWDROPDOWN, value ? 1 : 0, 0);
+                this.Select(value, 0);
             }
         }
+
+#endif
 
         public int FindItem(string s, bool ignoreCase)
         {
@@ -78,7 +99,7 @@ namespace FMSC.Controls.Mobile
         {
             itemValue = null;
             int index = this.FindItem(displayValue, true);
-            if (index == -1 ) { return false; }
+            if (index == -1) { return false; }
             object item = base.Items[index];
             if (!String.IsNullOrEmpty(this.ValueMember))
             {
@@ -111,8 +132,34 @@ namespace FMSC.Controls.Mobile
             //do nothing
         }
 
+#if NetCF_20
 
-        
+        /// <summary>
+        /// Programaticly select text in the textbox portion of the combobox
+        /// </summary>
+        /// <param name="start"></param>
+        /// <param name="length"></param>
+        public void Select(int start, int length)
+        {
+            if (start < 0)
+            {
+                throw new ArgumentException("InvalidArgument", "start");
+            }
+            else if (length < 0)
+            {
+                throw new ArgumentException("InvalidArgument", "length");
+            }
+            else
+            {
+                IntPtr hndl = this.Handle;
+                if (hndl != IntPtr.Zero)
+                {
+                    int high = start + length;
+                    FMSC.Controls.Win32.SendMessage(hndl, FMSC.Controls.Win32.CB_SETEDITSEL, 0, FMSC.Controls.Win32.MAKELPARAM(start, high).ToInt32());
+                }
+            }
+        }
+
+#endif
     }
-    
 }
