@@ -172,13 +172,25 @@ namespace FMSC.Controls
                     if (cancel == true) { return; }
 
                     base.SetCellValue(this.EditRow, value);
-                    this.NotifyCellValueChanged();
                     _orgValue = value;
+                    this.NotifyCellValueChanged();
                 }
+                EndEdit();
             }
             catch
             {
                 RevertEdit();
+            }
+        }
+
+        internal virtual void HideEditControl()
+        {
+            HostedControl.Bounds = Rectangle.Empty;
+
+            bool isFocused = HostedControl.Focused;
+            if (isFocused && Owner != null)
+            {
+                Owner.Focus();
             }
         }
 
@@ -245,13 +257,9 @@ namespace FMSC.Controls
         internal virtual void EndEdit()
         {
             _isEditing = false;
-
-            //this.HostedControl.Visible = false;
-            //Rectangle bounds = this.HostedControl.Bounds;
-            HostedControl.Bounds = Rectangle.Empty;
-            //this.Owner.Invalidate(bounds);
-            //this.Owner.UnSelect(this.EditRow);
             EditRow = -1;
+
+            HideEditControl();
         }
 
         void InitializeHostControl()

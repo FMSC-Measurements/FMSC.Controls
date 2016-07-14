@@ -5,7 +5,7 @@ using System.Text;
 
 namespace testBox
 {
-    public class testForm : FMSC.Controls.MyOpenFileDialogRedux 
+    public class testForm : FMSC.Controls.OpenFileDialogReduxControl
     {
         public testForm()
             : base()

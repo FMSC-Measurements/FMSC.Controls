@@ -1,13 +1,12 @@
 ﻿using System;
-
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
 using System.Drawing;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Windows.Forms;
 using FMSC.Controls;
-using System.Runtime.InteropServices;
 
 namespace testBox
 {
@@ -21,11 +20,14 @@ namespace testBox
         public Form1()
         {
             InitializeComponent();
-            // tell our form that we want to intercept all key press events in our form.Otherwise our KeyPress event method will only get events when the form class has focus.  
+            // tell our form that we want to intercept all key press events in our form.Otherwise our KeyPress event method will only get events when the form class has focus.
             //this.KeyPreview = true;
 
             //give our dataGrid our SIP, so that I can listen and react to events on our SIP
             editableDataGrid1.SIP = inputPanel1;
+
+            editableDataGrid1.CellValidating += new EditableDataGridCellValidatingEventHandler(editableDataGrid1_CellValidating);
+            editableDataGrid1.CellValueChanged += new EditableDataGridCellValueChangedEventHandler(editableDataGrid1_CellValueChanged);
 
             buttonPanel1.Text = "something";
 
@@ -38,7 +40,7 @@ namespace testBox
             textBoxCol = new EditableTextBoxColumn() { MappingName = "word", MaxTextLength = 12, GoToNextColumnWhenTextCompleate = true };
             dateTimeCol = new EditableDateTimePickerColumn() { MappingName = "date" };
             upDwnCol = new EditableUpDownColumn() { MappingName = "upDwn" };
-            ts.GridColumnStyles.Add(comboBoxCol );
+            ts.GridColumnStyles.Add(comboBoxCol);
             ts.GridColumnStyles.Add(textBoxCol);
             ts.GridColumnStyles.Add(dateTimeCol);
             ts.GridColumnStyles.Add(upDwnCol);
@@ -47,9 +49,9 @@ namespace testBox
             //note the mapping name for the buttonColumn must be provided and a valid property to bind to
             //this is because the dataGrid only displays columns that have a valid MappingName
             //I've created a work around that should work for Full Framework, and will probably be able to make a workaround for Mobile
-            //, but until then provide a mapping name. 
+            //, but until then provide a mapping name.
             //For DAL DataObjects you could use the Tag property as a mapping name, since it isn't reserved for any propuse, and is intended for special cases like this.
-            DataGridButtonColumn buttonCol = new DataGridButtonColumn() {MappingName = "button", UseCellColumnTextForCellValue = true, Text = "click me" };
+            DataGridButtonColumn buttonCol = new DataGridButtonColumn() { MappingName = "button", UseCellColumnTextForCellValue = true, Text = "click me" };
             buttonCol.Click += new ButtonCellClickEventHandler(buttonCol_Click);
             ts.GridColumnStyles.Add(buttonCol);
 
@@ -65,12 +67,20 @@ namespace testBox
             //editableDataGrid1.DataSource = things;
         }
 
+        void editableDataGrid1_CellValueChanged(object sender, EditableDataGridCellEventArgs e)
+        {
+        }
+
+        void editableDataGrid1_CellValidating(object sender, EditableDataGridCellValidatingEventArgs e)
+        {
+            editableDataGrid1.Focus();
+        }
+
         protected override void OnLoad(EventArgs e)
         {
             base.OnLoad(e);
-            this.comboBoxCol.DataSource = new int[] { 101,102,103 };
+            this.comboBoxCol.DataSource = new int[] { 101, 102, 103 };
         }
-
 
         void buttonCol_Click(ButtonCellClickEventArgs e)
         {
@@ -93,21 +103,20 @@ namespace testBox
             //String[] values = key.GetValueNames();
             //AppDomain.CurrentDomain.FriendlyName
         }
-
-
-        
     }
-
-    
 
     public class something : IDataErrorInfo
     {
-
         public int num1 { get; set; }
+
         public string word { get; set; }
+
         public string button { get; set; }
+
         public DateTime date { get; set; }
+
         public int upDwn { get; set; }
+
         #region IDataErrorInfo Members
 
         public string Error
@@ -120,6 +129,6 @@ namespace testBox
             get { return columnName + " error"; }
         }
 
-        #endregion
+        #endregion IDataErrorInfo Members
     }
 }

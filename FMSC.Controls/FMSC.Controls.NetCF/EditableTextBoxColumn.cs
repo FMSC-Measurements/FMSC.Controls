@@ -1,5 +1,4 @@
 using System;
-using System.ComponentModel;
 using System.Drawing;
 using System.Windows.Forms;
 
@@ -8,19 +7,16 @@ namespace FMSC.Controls
     // This is our editable TextBox column.
     public class EditableTextBoxColumn : EditableColumnBase
     {
-        #region Fields
-
         private int _maxTextLength = -1;
         private int _textWidth;
 
-        #endregion Fields
+        public EditableTextBoxColumn()
+        { }
 
-        #region Properties
-
-        protected override bool CanShowHostedControlIfReadOnly
-        {
-            get { return true; }
-        }
+        /// <summary>
+        /// If set to true, data grid will cycle to the next column when the length of text in the text box == MaxTextLength
+        /// </summary>
+        public bool GoToNextColumnWhenTextCompleate { get; set; }
 
         public int MaxTextLength
         {
@@ -37,12 +33,7 @@ namespace FMSC.Controls
 
         public bool MultiLine { get; set; }
 
-#if NET_CF
-
         public virtual TextBox TextBox
-#else
-        public override TextBox TextBox
-#endif
         {
             get
             {
@@ -50,38 +41,39 @@ namespace FMSC.Controls
             }
         }
 
-        /// <summary>
-        /// If set to true, data grid will cycle to the next column when the length of text in the text box == MaxTextLength
-        /// </summary>
-        public bool GoToNextColumnWhenTextCompleate { get; set; }
-
-        #endregion Properties
-
-        public EditableTextBoxColumn()
-        { }
-
-        #region override methods
-
-        protected override void OnReadOnlyChanged()
+        protected void UnwireTextBoxEvents(TextBox textBox)
         {
-            base.OnReadOnlyChanged();
-            this.TextBox.ReadOnly = base.ReadOnly;
+            textBox.TextChanged -= TextBox_TextChanged;
         }
 
-        protected override Rectangle GetPreferedBounds(Rectangle rc)
+        protected void WireTextBoxEvents(TextBox textbox)
         {
-            if (_textWidth > rc.Width)
+            textbox.TextChanged += new EventHandler(TextBox_TextChanged);
+        }
+
+        private void TextBox_TextChanged(object sender, EventArgs e)
+        {
+            EditableDataGrid dg = this.Owner as EditableDataGrid;
+            if (dg != null)
             {
-                if (this.MultiLine)
+                _textWidth = Win32.MeasureTextWidth(dg, this.TextBox.Text);
+                if (this.GoToNextColumnWhenTextCompleate &&
+                  this.TextBox.TextLength == this.TextBox.MaxLength)
                 {
-                    rc.Height = rc.Height * ((_textWidth / rc.Width) + 1);
-                }
-                else
-                {
-                    rc.Width = _textWidth;
+                    dg.SelectNextCell(true);
                 }
             }
-            return rc;
+            else
+            {
+                _textWidth = -1;
+            }
+        }
+
+        #region override members
+
+        protected override bool CanShowHostedControlIfReadOnly
+        {
+            get { return true; }
         }
 
         internal override void CommitEdit()
@@ -98,29 +90,6 @@ namespace FMSC.Controls
             //{
             //    this.UpdateHostedControl(_preValue);
             //}
-        }
-
-        protected override object GetHostControlValue()
-        {
-            try
-            {
-                return base.ConvertValueFromText(this.TextBox.Text);
-            }
-            catch
-            {
-                return string.Empty;
-            }
-        }
-
-        internal override void Edit(CurrencyManager source, int row, int col)
-        {
-            base.Edit(source, row, col);
-            this.TextBox.SelectAll();
-        }
-
-        protected override void UpdateHostedControl(object cellValue)
-        {
-            this.TextBox.Text = base.FormatText(cellValue);
         }
 
         protected override Control CreateHostedControl()
@@ -148,145 +117,51 @@ namespace FMSC.Controls
             base.DestroyHostedControl();
         }
 
-        #endregion override methods
-
-        protected void WireTextBoxEvents(TextBox textbox)
+        internal override void Edit(CurrencyManager source, int row, int col)
         {
-            textbox.TextChanged += new EventHandler(TextBox_TextChanged);
+            base.Edit(source, row, col);
+            this.TextBox.SelectAll();
         }
 
-        protected void UnwireTextBoxEvents(TextBox textBox)
+        protected override object GetHostControlValue()
         {
-            textBox.TextChanged -= TextBox_TextChanged;
-        }
-
-        private void TextBox_TextChanged(object sender, EventArgs e)
-        {
-            EditableDataGrid dg = this.Owner as EditableDataGrid;
-            if (dg != null)
+            try
             {
-                _textWidth = Win32.MeasureTextWidth(dg, this.TextBox.Text);
-                if (this.GoToNextColumnWhenTextCompleate &&
-                  this.TextBox.TextLength == this.TextBox.MaxLength)
-                {
-                    dg.SelectNextCell(true);
-                }
+                return base.ConvertValueFromText(this.TextBox.Text);
             }
-            else
+            catch
             {
-                _textWidth = -1;
+                return string.Empty;
             }
         }
 
-        private class EditableDataGridTextBox : TextBox, IKeyPressProcessor
+        protected override Rectangle GetPreferedBounds(Rectangle rc)
         {
-            protected override void OnKeyDown(KeyEventArgs e)
+            if (_textWidth > rc.Width)
             {
-                e.Handled = this.ProcessKeyPress(e.KeyData);
-                if (e.Handled == false)
+                if (this.MultiLine)
                 {
-                    base.OnKeyDown(e);
+                    rc.Height = rc.Height * ((_textWidth / rc.Width) + 1);
+                }
+                else
+                {
+                    rc.Width = _textWidth;
                 }
             }
-
-            #region IKeyPressProcssor Members
-
-            public bool ProcessDialogKey(Keys keyVal)
-            {
-                switch (keyVal)
-                {
-                    case (Keys.Left):
-                        {
-                            if (this.SelectionStart == 0)
-                            {
-                                EditableDataGrid dg = this.Parent as EditableDataGrid;
-                                if (dg != null)
-                                {
-                                    return dg.MoveSeclection(Direction.Left);
-                                }
-                            }
-                            break;
-                        }
-                    case (Keys.Right):
-                        {
-                            if (this.SelectionStart == this.Text.Length)
-                            {
-                                EditableDataGrid dg = this.Parent as EditableDataGrid;
-                                if (dg != null)
-                                {
-                                    return dg.MoveSeclection(Direction.Right);
-                                }
-                            }
-                            break;
-                        }
-                    case (Keys.Up):
-                        {
-                            EditableDataGrid dg = this.Parent as EditableDataGrid;
-                            if (dg != null)
-                            {
-                                return dg.MoveSeclection(Direction.Up);
-                            }
-                            break;
-                        }
-                    case (Keys.Down):
-                        {
-                            EditableDataGrid dg = this.Parent as EditableDataGrid;
-                            if (dg != null)
-                            {
-                                return dg.MoveSeclection(Direction.Down);
-                            }
-                            break;
-                        }
-                    default:
-                        {
-                            IKeyPressProcessor p = this.Parent as IKeyPressProcessor;
-                            if (p == null) { return false; }
-                            return p.ProcessDialogKey(keyVal);
-                        }
-                }
-                return false;
-            }
-
-            public bool ProcessTabKey()
-            {
-                IKeyPressProcessor p = this.Parent as IKeyPressProcessor;
-                if (p == null) { return false; }
-                return p.ProcessTabKey();
-            }
-
-            public bool ProcessBackTabKey()
-            {
-                IKeyPressProcessor p = this.Parent as IKeyPressProcessor;
-                if (p == null) { return false; }
-                return p.ProcessBackTabKey();
-            }
-
-            public bool ProcessReturnKey()
-            {
-                return this.ProcessTabKey();
-            }
-
-            public bool ProcessKeyPress(Keys keyVal)
-            {
-                switch (keyVal)
-                {
-                    case (Keys.Up):
-                    case (Keys.Down):
-                    case (Keys.Left):
-                    case (Keys.Right):
-                        {
-                            return this.ProcessDialogKey(keyVal);
-                        }
-                    default:
-                        {
-                            IKeyPressProcessor p = this.Parent as IKeyPressProcessor;
-                            if (p == null) { return false; }
-                            return p.ProcessKeyPress(keyVal);
-                        }
-                }
-            }
-
-            #endregion IKeyPressProcssor Members
+            return rc;
         }
+
+        protected override void OnReadOnlyChanged()
+        {
+            base.OnReadOnlyChanged();
+            this.TextBox.ReadOnly = base.ReadOnly;
+        }
+
+        protected override void UpdateHostedControl(object cellValue)
+        {
+            this.TextBox.Text = base.FormatText(cellValue);
+        }
+
+        #endregion override members
     }
 }

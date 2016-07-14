@@ -43,17 +43,17 @@ namespace FMSC.Controls
 
         #endregion static fields
 
-        private Color _alternatingBackColor;
+        Color _alternatingBackColor;
 
-        private SolidBrush _altTextBrush;
-        private bool _editControlChanging;
-        private EditableColumnBase _editColumn = null;
-        private Color _errorColor;
-        private Pen _forePen;
-        private int _homeColumnIndex = 0;
-        private bool _isScrolling;
-        private bool _readOnly;
-        private InputPanel _sip;
+        SolidBrush _altTextBrush;
+        EditableColumnBase _editColumn = null;
+        Color _errorColor;
+        Pen _forePen;
+        bool _inCommitEdit;
+        bool _isScrolling;
+        int _homeColumnIndex = 0;
+        bool _readOnly;
+        InputPanel _sip;
 
         public EditableDataGrid()
             : base()
@@ -201,11 +201,24 @@ namespace FMSC.Controls
 
         public string HomeColumn
         {
-            get { return TableStyle.GridColumnStyles[HomeColumnIndex].MappingName; }
+            get
+            {
+                try
+                {
+                    return TableStyle.GridColumnStyles[HomeColumnIndex].MappingName;
+                }
+                catch (IndexOutOfRangeException)
+                { return null; }
+            }
             set
             {
-                DataGridColumnStyle colSty = TableStyle.GridColumnStyles[value];
-                HomeColumnIndex = TableStyle.GridColumnStyles.IndexOf(colSty);
+                var tabSty = TableStyle;
+                if (tabSty != null
+                    && tabSty.GridColumnStyles.Contains(value))
+                {
+                    var colSty = TableStyle.GridColumnStyles[value];
+                    HomeColumnIndex = TableStyle.GridColumnStyles.IndexOf(colSty);
+                }
             }
         }
 
@@ -343,8 +356,22 @@ namespace FMSC.Controls
 
         public void EndEdit()
         {
-            this.IsEditing = false;
-            this.InternalEndEdit();
+            if (!IsEditing) { return; }
+            IsEditing = false;
+
+            var editCol = EditColumn;
+            if (editCol != null)
+            {
+                editCol.CommitEdit();
+            }
+
+            ////DataGrid recieves back focus only if it is Ending the edit
+            ////that ways if the column loses focus to something other than the dataGrid,
+            ////the dataGrid isn't fighting for focus
+            //if (!_isScrolling)
+            //{
+            //    this.Focus();
+            //}
         }
 
         public void MoveFirstEmptyCell()
@@ -440,18 +467,22 @@ namespace FMSC.Controls
 
         public bool SelectNextCell(bool forward)
         {
+            //are we going forward from the last column
             if (forward && this.CurrentColumnIndex >= this.ColumnCount - 1)                         // are we going forward from the last column
             {
                 return SelectNextRow();                                                             //go to next row
             }
-            else if (!forward && this.CurrentColumnIndex < 1 && this.CurrentRowIndex > 0)           //are we back from the first column
+            //are we going back from the first column
+            else if (!forward && this.CurrentColumnIndex < 1 && this.CurrentRowIndex > 0)
             {
-                this.CurrentCell = new DataGridCell(this.CurrentRowIndex - 1, this.ColumnCount - 1);//go to previous row
+                //go to previous row
+                this.CurrentCell = new DataGridCell(this.CurrentRowIndex - 1, this.ColumnCount - 1);
                 this.EnsureCurrentCellFocused();
             }
-            else                                                                                    //we aren't on a end column
+            else
             {
-                this.MoveSeclection((forward) ? Direction.Right : Direction.Left);                             //move cell (left or right)
+                //move cell (left or right)
+                this.MoveSeclection((forward) ? Direction.Right : Direction.Left);
             }
 
             return true;
@@ -595,10 +626,12 @@ namespace FMSC.Controls
 
         protected bool IsColumnDisplayable(DataGridColumnStyle col)
         {
-            if (col == null) { return false; }
-            if (col.Width <= 0) { return false; }
-            if (col.PropertyDescriptor == null) { return false; }
-            return true;
+            if (col == null
+                || col.Width <= 0
+                || col.PropertyDescriptor == null)
+            { return false; }
+            else
+            { return true; }
         }
 
         protected virtual void OnCellValidating(EditableDataGridCellValidatingEventArgs e)
@@ -619,8 +652,7 @@ namespace FMSC.Controls
 
         protected override void OnCurrentCellChanged(EventArgs e)
         {
-            this.IsEditing = false;
-            this.InternalEndEdit();
+            this.EndEdit();
             base.OnCurrentCellChanged(e);//causes bound dataSource to update current
             this.Edit();
         }
@@ -632,6 +664,12 @@ namespace FMSC.Controls
             base.OnKeyDown(e);
         }
 
+        protected override void OnGotFocus(EventArgs e)
+        {
+            base.OnGotFocus(e);
+            //Edit();
+        }
+
         protected override void OnLostFocus(EventArgs e)
         {
             base.OnLostFocus(e);
@@ -640,7 +678,8 @@ namespace FMSC.Controls
         //listen to mouse clicks to allow IClickableDataGridColumns to handle MouseDown events
         protected override void OnMouseDown(MouseEventArgs mea)
         {
-            //Point point = this.PointToClient(new Point(mea.X, mea.Y));
+            base.OnMouseDown(mea);
+
             DataGrid.HitTestInfo hitTest;
             try
             {
@@ -651,32 +690,36 @@ namespace FMSC.Controls
                 return;
             }
 
-            IClickableDataGridColumn column = null;
-            if (hitTest.Row >= 0)
+            if (hitTest.Type == HitTestType.Cell
+                && hitTest.Row > -1
+                && hitTest.Column > -1)
             {
                 DataGridTableStyle tableStyle = this.TableStyle;
-                column = tableStyle.GridColumnStyles[hitTest.Column] as IClickableDataGridColumn;
-            }
+                var column = tableStyle.GridColumnStyles[hitTest.Column];
 
-            if (column != null)
-            {
-                column.HandleMouseDown(hitTest.Row, mea);
+                if (column != null && column is IClickableDataGridColumn)
+                {
+                    ((IClickableDataGridColumn)column).HandleMouseDown(hitTest.Row, mea);
 
-                var cellBounds = this.GetCellBounds(hitTest.Row, hitTest.Column);
-                this.Invalidate(cellBounds);
-                this.Update();
+                    var cellBounds = this.GetCellBounds(hitTest.Row, hitTest.Column);
+                    this.Invalidate(cellBounds);
+                    this.Update();
+                }
+
+                var curCell = CurrentCell;
+                if (CurrentCell.ColumnNumber == hitTest.Column
+                    && CurrentCell.RowNumber == hitTest.Row)
+                {
+                    Edit();
+                }
             }
-            //else
-            //{
-            //    base.OnMouseDown(mea);
-            //}
-            base.OnMouseDown(mea);
         }
 
         //listen to mouse clicks to allow IClickableDataGridColumns to handle Mouse click events
         protected override void OnMouseUp(MouseEventArgs mea)
         {
-            IClickableDataGridColumn column = null;
+            base.OnMouseUp(mea);
+
             DataGrid.HitTestInfo hitTest;
             try
             {
@@ -687,38 +730,34 @@ namespace FMSC.Controls
                 return;
             }
 
-            if (hitTest.Row >= 0)                                                        //check click is in row, not header or invalid
+            if (hitTest.Column > -1
+                && hitTest.Row > -1
+                && hitTest.Type == HitTestType.Cell)
             {
                 DataGridTableStyle tableStyle = this.TableStyle;
-                column = tableStyle.GridColumnStyles[hitTest.Column] as IClickableDataGridColumn;
-            }
-            if (column != null)                                                         //check that column is clickable, if so intercept click
-            {                                                                           //dont call base.OnmouseUp if clickable because we dont want to Select the cell, just click it
-                column.HandleMouseClick(hitTest.Row);
+                var column = tableStyle.GridColumnStyles[hitTest.Column] as IClickableDataGridColumn;
 
-                var cellBounds = this.GetCellBounds(hitTest.Row, hitTest.Column);
-                this.Invalidate(cellBounds);
-                this.Update();
+                if (column != null)                                                         //check that column is clickable, if so intercept click
+                {                                                                           //dont call base.OnmouseUp if clickable because we dont want to Select the cell, just click it
+                    column.HandleMouseClick(hitTest.Row);
+
+                    var cellBounds = this.GetCellBounds(hitTest.Row, hitTest.Column);
+                    this.Invalidate(cellBounds);
+                    this.Update();
+                }
             }
-            //else
-            //{
-            //    base.OnMouseUp(mea);
-            //}
-            base.OnMouseUp(mea);
         }
 
         protected virtual void OnReadOnlyChanged()
         {
             if (this.ReadOnly)
             {
-                this.IsEditing = false;
-                this.InternalEndEdit();
+                EndEdit();
             }
             else
             {
                 this.Edit();
             }
-            //this.Invalidate();
         }
 
         protected void UpdateEditCell()
@@ -755,56 +794,45 @@ namespace FMSC.Controls
 
         private void Edit()
         {
-            InternalEndEdit();
+            EndEdit();//end any existing edits
 
-            if (ReadOnly) { return; }
+            if (ReadOnly) { return; } //do nothing if dataGrid set to readOnly
 
-            var curCell = CurrentCell;
-            EditColumn = CurrentCollumn as EditableColumnBase;
-            if (EditColumn != null)
+            var col = CurrentCollumn as EditableColumnBase;
+
+            if (col == null
+                || !IsColumnDisplayable(col)
+                || col.ReadOnly) { return; }
+
+            try
             {
-                try
-                {
-                    IsEditing = true;
+                IsEditing = true;
+                EditColumn = col;
 
-                    _editControlChanging = true;
+                var curCell = CurrentCell;
+                EditColumn.Edit(CurrencyManager
+                    , curCell.RowNumber
+                    , curCell.ColumnNumber);
 
-                    EditColumn.Edit(CurrencyManager
-                        , curCell.RowNumber
-                        , curCell.ColumnNumber);
-
-                    UpdateEditCell();
-
-                    _editControlChanging = false;
-
-                    return;
-                }
-                catch
-                { /*fall thru*/}
+                UpdateEditCell();
             }
-            //reset editing state, if all else fails
-            IsEditing = false;
-            EditColumn = null;
-            InternalEndEdit();
+            catch
+            {
+                //reset editing state, if all else fails
+                EndEdit();
+            }
         }
 
-        private void InternalEndEdit()
+        private void CommitEdit()
         {
+            if (!IsEditing || _inCommitEdit) { return; }
+
             var editCol = EditColumn;
             if (editCol != null)
             {
+                _inCommitEdit = true;
                 editCol.CommitEdit();
-                if (IsEditing) { return; }
-                editCol.EndEdit();
-                this.EditColumn = null;
-            }
-
-            //DataGrid recieves back focus only if it is Ending the edit
-            //that ways if the column loses focus to something other than the dataGrid,
-            //the dataGrid isn't fighting for focus
-            if (!_isScrolling)
-            {
-                this.Focus();
+                _inCommitEdit = false;
             }
         }
 

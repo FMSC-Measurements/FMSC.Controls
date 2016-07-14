@@ -40,7 +40,7 @@
             this.button1 = new System.Windows.Forms.Button();
             this.button2 = new System.Windows.Forms.Button();
             this.comboBoxRedux1 = new FMSC.Controls.Mobile.ComboBoxRedux();
-            this.buttonPanel1 = new FMSC.Controls.Mobile.ButtonPanel();
+            this.buttonPanel1 = new FMSC.Controls.ButtonPanel();
             ((System.ComponentModel.ISupportInitialize)(this.bindingSource1)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.editableDataGrid1)).BeginInit();
             this.SuspendLayout();
@@ -143,7 +143,7 @@
         private System.Windows.Forms.Button button1;
         private System.Windows.Forms.Button button2;
         private FMSC.Controls.Mobile.ComboBoxRedux comboBoxRedux1;
-        private FMSC.Controls.Mobile.ButtonPanel buttonPanel1;
+        private FMSC.Controls.ButtonPanel buttonPanel1;
     }
 }
 

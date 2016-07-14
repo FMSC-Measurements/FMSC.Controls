@@ -1,18 +1,17 @@
 ﻿using System;
 using System.Drawing;
-using System.Windows.Forms;
 using System.Reflection;
+using System.Windows.Forms;
 
 namespace FMSC.Controls
 {
-    public abstract  partial class CustomColumnBase : DataGridTextBoxColumn
+    public abstract partial class CustomColumnBase : DataGridTextBoxColumn
     {
-        #region Statics 
+        #region Statics
 
 #if NET_CF
         private static System.Reflection.FieldInfo ownerAccessor;                                          //FieldInfo for retrieving owner value
 
-        
         /// <summary>
         /// Static Constructor. Called automaticly
         /// </summary>
@@ -20,27 +19,29 @@ namespace FMSC.Controls
         {
             ownerAccessor = typeof(CustomColumnBase).GetField("m_dgOwner", BindingFlags.Instance | BindingFlags.NonPublic);
         }
+
 #endif
 
-        #endregion
+        #endregion Statics
 
         #region Privates
-        
+
         private StringFormat _stringFormat = null;                                      // Actual string format we'll use to draw string.
 
 #if NET_CF
         private int _columnOrdinal = -1;                                                // Our ordinal in the grid.
 #endif
 
-        #endregion
+        #endregion Privates
 
         #region Public Properties
 
-        #if NET_CF
-        public virtual bool ReadOnly        
-        #else
+#if NET_CF
+
+        public virtual bool ReadOnly
+#else
         public override bool ReadOnly
-        #endif
+#endif
         {
             get
             {
@@ -51,7 +52,6 @@ namespace FMSC.Controls
                 return;
             }
         }
-
 
         public virtual object NullValue
         {
@@ -78,14 +78,13 @@ namespace FMSC.Controls
 
                 return _stringFormat;                                                   // Return our format
             }
-
         }
 
         public int ColumnOrdinal
         {
             get
             {
-                #if NET_CF
+#if NET_CF
                 if ((_columnOrdinal == -1) && (this.Owner != null))                     // Parent is set but ordinal is not?
                 {
                     foreach (DataGridTableStyle table in this.Owner.TableStyles)        // Check all tables.
@@ -97,31 +96,26 @@ namespace FMSC.Controls
                 }
 
                 return _columnOrdinal;
-                #else
+#else
                 return this.DataGridTableStyle.GridColumnStyles.IndexOf(this);
-                #endif
+#endif
             }
         }
-
 
         /// <summary>
         /// Gets the data grid we are a part of.
         /// </summary>
-        private DataGrid _cashedOwner;
         public DataGrid Owner
         {
             get
             {
-                #if NET_CF
                 return (DataGrid)ownerAccessor.GetValue(this);
-                #else
-                return base.DataGridTableStyle.DataGrid;
-                #endif
             }
         }
 
-        #if NET_CF
-         public virtual HorizontalAlignment Alignment
+#if NET_CF
+
+        public virtual HorizontalAlignment Alignment
         {
             get
             {
@@ -139,8 +133,10 @@ namespace FMSC.Controls
                 }
             }
         }
-        #endif
-        #endregion
+
+#endif
+
+        #endregion Public Properties
 
         public virtual object GetCellValue(int rowNum)
         {
@@ -281,8 +277,6 @@ namespace FMSC.Controls
         //    }
         //}
 
-
-
         protected virtual String FormatText(Object cellData)
         {
             String cellText;                                                    // Formatted text.
@@ -308,25 +302,24 @@ namespace FMSC.Controls
             return cellText;
         }
 
-
         protected static Rectangle AlignContentWithinCell(Size alignThis, Rectangle withinThis, ContentAlignment align)
         {
-            //allign content horizontaly 
+            //allign content horizontaly
             if ((align & ContentAlignment.TopRight) == ContentAlignment.TopRight)
                 withinThis.X += withinThis.Width - alignThis.Width;
             else if ((align & ContentAlignment.TopCenter) == ContentAlignment.TopCenter)
                 withinThis.X += (withinThis.Width - alignThis.Width) / 2;
             //else
-            
-                //do nothing content already right alligned
 
-                //allign content verticly 
-                //alignThis.Height = withinThis.Height;
-            
+            //do nothing content already right alligned
+
+            //allign content verticly
+            //alignThis.Height = withinThis.Height;
+
             return withinThis;
         }
 
-        #if NET_CF
+#if NET_CF
 
         protected void Invalidate()
         {
@@ -335,8 +328,9 @@ namespace FMSC.Controls
                 this.Owner.Invalidate();                                        // Repaint it.
             }
         }
-        #endif
-        #endregion
 
+#endif
+
+        #endregion protected methods
     }
 }

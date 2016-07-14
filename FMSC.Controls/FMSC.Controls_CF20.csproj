@@ -63,6 +63,9 @@
     <Compile Include="FMSC.Controls.NetCF\DeviceInfo.cs" />
     <Compile Include="FMSC.Controls.NetCF\DpiHelper.cs" />
     <Compile Include="FMSC.Controls.NetCF\HLSColor.cs" />
+    <Compile Include="FMSC.Controls.NetCF\EditableDataGridTextBox.cs">
+      <SubType>Component</SubType>
+    </Compile>
     <Compile Include="FMSC.Controls.NetCF\System.Windows.Forms\ImageLayout.cs" />
     <Compile Include="FMSC.Controls.NetCF\ButtonPanel.cs">
       <SubType>UserControl</SubType>
@@ -123,9 +126,6 @@
     <EmbeddedResource Include="FMSC.Controls.NetCF\OpenFileDialogReduxControl.resx">
       <DependentUpon>OpenFileDialogReduxControl.cs</DependentUpon>
     </EmbeddedResource>
-  </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Mobile\" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CompactFramework.CSharp.targets" />
   <ProjectExtensions>
