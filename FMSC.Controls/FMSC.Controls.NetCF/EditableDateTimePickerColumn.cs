@@ -54,7 +54,7 @@ namespace FMSC.Controls
             }
             catch
             {
-                this.DateTimePicker.Value = default(DateTime);
+                this.DateTimePicker.Value = DateTimePicker.MinDate;
             }
         }
 
