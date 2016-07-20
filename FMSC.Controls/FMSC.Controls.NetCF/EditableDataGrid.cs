@@ -806,13 +806,13 @@ namespace FMSC.Controls
 
             try
             {
-                IsEditing = true;
                 EditColumn = col;
-
                 var curCell = CurrentCell;
                 EditColumn.Edit(CurrencyManager
                     , curCell.RowNumber
                     , curCell.ColumnNumber);
+
+                IsEditing = true;
 
                 UpdateEditCell();
             }
