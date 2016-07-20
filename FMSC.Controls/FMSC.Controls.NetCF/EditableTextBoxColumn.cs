@@ -154,7 +154,10 @@ namespace FMSC.Controls
         protected override void OnReadOnlyChanged()
         {
             base.OnReadOnlyChanged();
-            this.TextBox.ReadOnly = base.ReadOnly;
+            if (TextBox != null)
+            {
+                this.TextBox.ReadOnly = base.ReadOnly;
+            }
         }
 
         protected override void UpdateHostedControl(object cellValue)
