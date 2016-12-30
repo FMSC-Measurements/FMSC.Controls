@@ -376,8 +376,10 @@ namespace FMSC.Controls
 
         public void MoveFirstEmptyCell()
         {
+            var rowIndex = this.CurrentRowIndex;
+            if (rowIndex < 0) { return; }
             if (this.TableStyle == null) { return; }
-            object rowData = this.CurrencyManager.List[this.CurrentRowIndex];
+            object rowData = this.CurrencyManager.List[rowIndex];
             for (int i = 0; i < this.TableStyle.GridColumnStyles.Count; i++)
             {
                 DataGridColumnStyle col = this.TableStyle.GridColumnStyles[i];
@@ -385,18 +387,18 @@ namespace FMSC.Controls
                 object cellValue = col.PropertyDescriptor.GetValue(rowData);
                 if (cellValue == null)
                 {
-                    this.CurrentCell = new DataGridCell(this.CurrentRowIndex, i);
+                    this.CurrentCell = new DataGridCell(rowIndex, i);
                     return;
                 }
                 Type t = cellValue.GetType();
                 if (cellValue is String && String.IsNullOrEmpty(cellValue as String))
                 {
-                    this.CurrentCell = new DataGridCell(this.CurrentRowIndex, i);
+                    this.CurrentCell = new DataGridCell(rowIndex, i);
                     return;
                 }
                 else if (t.IsValueType && object.Equals(cellValue, Activator.CreateInstance(t)))//if value is a value type(int, double, bool ....) compare cellValue to type's default vaule
                 {
-                    this.CurrentCell = new DataGridCell(this.CurrentRowIndex, i);
+                    this.CurrentCell = new DataGridCell(rowIndex, i);
                     return;
                 }
             }
