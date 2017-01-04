@@ -6,34 +6,20 @@ using Microsoft.WindowsCE.Forms;
 
 namespace FMSC.Controls
 {
-    //public enum DataGridAutoSizeMode
-    //{
-    //    NotSet = 0,
-    //    None = 1,
-    //    ColumnHeader = 2,
-    //    AllCellsExceptHeader = 4,
-    //    AllCells = 6,
-    //    DisplayedCellsExceptHeader = 8,
-    //    DisplayedCells = 10,
-    //    Fill = 16,
-    //}
+
 
     public delegate void EditableDataGridCellValidatingEventHandler(Object sender, EditableDataGridCellValidatingEventArgs e);
     public delegate void EditableDataGridCellValueChangedEventHandler(Object sender, EditableDataGridCellEventArgs e);
 
     public partial class EditableDataGrid : DataGrid, System.ComponentModel.ISupportInitialize, IKeyPressProcessor
     {
-        #region static fields
+        #region static members
 
 #if !NET_CF
         private static  FieldInfo _alternatingBackBrushAccessor;
 #endif
         private static FieldInfo _firstRowVisableAccessor;
-
-        //private static FieldInfo _currencyManagerAccessor;
-        //private static FieldInfo _propertyDiscriptorCollectionAccessor;
         private static FieldInfo _gridRecAccessor;
-
         private static FieldInfo _gridRendererAccessor;
         private static FieldInfo _horzScrollBarAccessor;
         private static FieldInfo _listManagerAccessor;
@@ -41,27 +27,6 @@ namespace FMSC.Controls
         private static FieldInfo _tableStyleAccessor;
         private static FieldInfo _vertScrollBarAccessor;
 
-        #endregion static fields
-
-        Color _alternatingBackColor;
-
-        SolidBrush _altTextBrush;
-        EditableColumnBase _editColumn = null;
-        Color _errorColor;
-        Pen _forePen;
-        bool _inCommitEdit;
-        bool _isScrolling;
-        int _homeColumnIndex = 0;
-        bool _readOnly;
-        InputPanel _sip;
-
-        public EditableDataGrid()
-            : base()
-        {
-            this.WireGridEvents();
-        }
-
-        //this is the static constructor, where we initialize our static variables
         static EditableDataGrid()
         {
             _firstRowVisableAccessor = typeof(EditableDataGrid).GetField("m_irowVisibleFirst", BindingFlags.NonPublic | BindingFlags.Instance);
@@ -79,13 +44,49 @@ namespace FMSC.Controls
             }
         }
 
-        //public event EditableDataGridRowAddedEventHandler NewRowAdded;
+        #endregion static fields
+
+        Color _alternatingBackColor;
+        SolidBrush _altTextBrush;
+        Color _errorColor;
+        Pen _forePen;
+
+        EditableColumnBase _editColumn;        
+        bool _inCommitEdit;
+        bool _isEditing;
+        bool _isScrolling;
+        bool _readOnly;
+
+        int _homeColumnIndex = 0;
+        InputPanel _sip;
+
+        public EditableDataGrid()
+        {
+            this.WireGridEvents();
+        }
+
         public event EditableDataGridCellValidatingEventHandler CellValidating;
 
         public event EditableDataGridCellValueChangedEventHandler CellValueChanged;
 
+        #region props
+
+        #region Behavior
         public bool AllowUserToAddRows { get; set; }
 
+        public bool ReadOnly
+        {
+            get { return _readOnly; }
+            set
+            {
+                if (_readOnly == value) { return; }
+                _readOnly = value;
+                this.OnReadOnlyChanged();
+            }
+        }
+        #endregion
+
+        #region Appearance
         public Color AlternatingBackColor
         {
             get { return _alternatingBackColor; }
@@ -103,6 +104,54 @@ namespace FMSC.Controls
                 _alternatingBackColor = value;
             }
         }
+
+        public Color ErrorColor
+        {
+            get { return _errorColor; }
+            set
+            {
+                if (_errorColor == value)
+                {
+                    return;
+                }
+                if (ErrorBrush != null)
+                {
+                    ErrorBrush.Dispose();
+                }
+                ErrorBrush = new SolidBrush(value);
+                _errorColor = value;
+            }
+        }
+
+        internal SolidBrush AlternatingBackBrush { get; private set; }
+
+        private SolidBrush AltTextBrush
+        {
+            get
+            {
+                if (_altTextBrush == null)
+                {
+                    _altTextBrush = new SolidBrush(this.HeaderForeColor);
+                }
+                return _altTextBrush;
+            }
+        }
+
+        internal SolidBrush ErrorBrush { get; set; }
+
+        internal Pen ForePen
+        {
+            get
+            {
+                if (_forePen == null)
+                {
+                    this._forePen = new Pen(this.ForeColor, 2);
+                }
+                return this._forePen;
+            }
+        }        
+        #endregion
+
 
         public int ColumnCount
         {
@@ -141,6 +190,14 @@ namespace FMSC.Controls
             }
         }
 
+        internal CurrencyManager CurrencyManager
+        {
+            get
+            {
+                return (CurrencyManager)_listManagerAccessor.GetValue(this);
+            }
+        }
+
         public new object DataSource
         {
             get
@@ -165,28 +222,22 @@ namespace FMSC.Controls
             }
         }
 
-        public Color ErrorColor
+        internal EditableColumnBase EditColumn
         {
-            get { return _errorColor; }
+            get
+            {
+                return _editColumn;
+            }
             set
             {
-                if (_errorColor == value)
-                {
-                    return;
-                }
-                if (ErrorBrush != null)
-                {
-                    ErrorBrush.Dispose();
-                }
-                ErrorBrush = new SolidBrush(value);
-                _errorColor = value;
+                if (value == _editColumn) { return; }
+                _editColumn = value;
             }
         }
 
-        /// <summary>
-        /// Gets the area of the data grid where rows can be displayed
-        /// </summary>
-        public Rectangle GridRec
+        internal int FirstVisibleRow { get { return (int)_firstRowVisableAccessor.GetValue(this); } }
+        
+        protected Rectangle GridRec
         {
             get
             {
@@ -199,47 +250,34 @@ namespace FMSC.Controls
             }
         }
 
-        public string HomeColumn
-        {
-            get
-            {
-                try
-                {
-                    return TableStyle.GridColumnStyles[HomeColumnIndex].MappingName;
-                }
-                catch (IndexOutOfRangeException)
-                { return null; }
-            }
-            set
-            {
-                var tabSty = TableStyle;
-                if (tabSty != null
-                    && tabSty.GridColumnStyles.Contains(value))
-                {
-                    var colSty = TableStyle.GridColumnStyles[value];
-                    HomeColumnIndex = TableStyle.GridColumnStyles.IndexOf(colSty);
-                }
-            }
-        }
+        //public string HomeColumn
+        //{
+        //    get
+        //    {
+        //        try
+        //        {
+        //            return TableStyle.GridColumnStyles[HomeColumnIndex].MappingName;
+        //        }
+        //        catch (IndexOutOfRangeException)
+        //        { return null; }
+        //    }
+        //    set
+        //    {
+        //        var tabSty = TableStyle;
+        //        if (tabSty != null
+        //            && tabSty.GridColumnStyles.Contains(value))
+        //        {
+        //            var colSty = TableStyle.GridColumnStyles[value];
+        //            HomeColumnIndex = TableStyle.GridColumnStyles.IndexOf(colSty);
+        //        }
+        //    }
+        //}
 
-        public int HomeColumnIndex
-        {
-            get { return _homeColumnIndex; }
-            set { _homeColumnIndex = (value > 0) ? value : 0; }
-        }
-
-        public ScrollBar HorizScrollBar { get { return (ScrollBar)_horzScrollBarAccessor.GetValue(this); } }
-
-        public bool ReadOnly
-        {
-            get { return _readOnly; }
-            set
-            {
-                if (_readOnly == value) { return; }
-                _readOnly = value;
-                this.OnReadOnlyChanged();
-            }
-        }
+        //public int HomeColumnIndex
+        //{
+        //    get { return _homeColumnIndex; }
+        //    set { _homeColumnIndex = (value > 0) ? value : 0; }
+        //}
 
         public int RowCount
         {
@@ -276,60 +314,9 @@ namespace FMSC.Controls
             }
         }
 
+        public ScrollBar HorizScrollBar { get { return (ScrollBar)_horzScrollBarAccessor.GetValue(this); } }
+
         public ScrollBar VertScrollBar { get { return (ScrollBar)_vertScrollBarAccessor.GetValue(this); } }
-
-        internal SolidBrush AlternatingBackBrush { get; private set; }
-
-        internal CurrencyManager CurrencyManager
-        {
-            get
-            {
-                return (CurrencyManager)_listManagerAccessor.GetValue(this);
-            }
-        }
-
-        internal EditableColumnBase EditColumn
-        {
-            get
-            {
-                return _editColumn;
-            }
-            set
-            {
-                if (value == _editColumn) { return; }
-                _editColumn = value;
-            }
-        }
-
-        internal SolidBrush ErrorBrush { get; set; }
-
-        internal int FirstVisibleRow { get { return (int)_firstRowVisableAccessor.GetValue(this); } }
-
-        internal Pen ForePen
-        {
-            get
-            {
-                if (_forePen == null)
-                {
-                    this._forePen = new Pen(this.ForeColor, 2);
-                }
-                return this._forePen;
-            }
-        }
-
-        internal bool IsEditing { get; set; }
-
-        private SolidBrush AltTextBrush
-        {
-            get
-            {
-                if (_altTextBrush == null)
-                {
-                    _altTextBrush = new SolidBrush(this.HeaderForeColor);
-                }
-                return _altTextBrush;
-            }
-        }
 
         private int RowHeight
         {
@@ -346,6 +333,7 @@ namespace FMSC.Controls
                 return 22;
             }
         }
+        #endregion
 
         public void AddRow()
         {
@@ -354,10 +342,54 @@ namespace FMSC.Controls
             this.Invalidate();
         }
 
+        public void Edit()
+        {
+            EndEdit();//end any existing edits
+
+            if (ReadOnly) { return; } //do nothing if dataGrid set to readOnly
+
+            var col = CurrentCollumn as EditableColumnBase;
+
+            if (col == null
+                || !IsColumnDisplayable(col)
+                || col.ReadOnly) { return; }
+
+            try
+            {
+                EditColumn = col;
+                var curCell = CurrentCell;
+                EditColumn.Edit(CurrencyManager
+                    , curCell.RowNumber
+                    , curCell.ColumnNumber);
+
+                _isEditing = true;
+
+                UpdateEditCell();
+            }
+            catch
+            {
+                //reset editing state, if all else fails
+                EndEdit();
+            }
+        }
+
+        private void CommitEdit()
+        {
+            if (!_isEditing || _inCommitEdit) { return; }
+
+            var editCol = EditColumn;
+            if (editCol != null)
+            {
+                _inCommitEdit = true;
+                editCol.CommitEdit();
+                _inCommitEdit = false;
+            }
+        }
+
         public void EndEdit()
         {
-            if (!IsEditing) { return; }
-            IsEditing = false;
+            if (!_isEditing) { return; }
+            _isEditing = false;
 
             var editCol = EditColumn;
             if (editCol != null)
@@ -492,17 +524,15 @@ namespace FMSC.Controls
 
         public bool SelectNextRow()
         {
-            int homeCol = (HomeColumnIndex < this.ColumnCount) ? HomeColumnIndex : 0;
-
-            if ((this.CurrentRowIndex < this.RowCount - 1))                                    //if we aren't at the end OR
+            if ((this.CurrentRowIndex < this.RowCount - 1))                     //if we aren't at the end OR
             {
-                this.CurrentCell = new DataGridCell(this.CurrentRowIndex + 1, this.CurrentColumnIndex); //select next cell in the next row
+                this.CurrentCell = new DataGridCell(this.CurrentRowIndex + 1, this.CurrentColumnIndex);//select next cell in the next row
             }
-            else if (this.CurrentRowIndex == this.RowCount - 1 && this.UserAddRow())            //we are at the end and can make a new row
+            else if (this.CurrentRowIndex == this.RowCount - 1 && this.UserAddRow())//we are at the end and can make a new row
             {
-                this.CurrentCell = new DataGridCell(this.CurrentRowIndex, homeCol);     //select next cell in the next row OR
+                this.CurrentCell = new DataGridCell(this.CurrentRowIndex, 0);   //select first cell in the next row OR
             }
-            else                                                                                //we are at the end and can't make a new row
+            else                                                                //we are at the end and can't make a new row
             {
                 return false;
             }
@@ -532,30 +562,6 @@ namespace FMSC.Controls
         {
             this.OnCellValueChanged(e);
         }
-
-        protected override void Dispose(bool disposing)
-        {
-            base.Dispose(disposing);
-            if (disposing)
-            {
-                this.UnwireGridEvents();
-                if (this.ErrorBrush != null)
-                {
-                    this.ErrorBrush.Dispose();
-                    this.ErrorBrush = null;
-                }
-                if (_altTextBrush != null)
-                {
-                    _altTextBrush.Dispose();
-                    _altTextBrush = null;
-                }
-                if (this._forePen != null)
-                {
-                    this._forePen.Dispose();
-                }
-            }
-        }
-
         protected void EnsureCurrentCellFocused()
         {
             EditableColumnBase col = this.TableStyle.GridColumnStyles[this.CurrentColumnIndex] as EditableColumnBase;
@@ -664,17 +670,6 @@ namespace FMSC.Controls
             e.Handled = this.ProcessKeyPress(e.KeyData);
             if (e.Handled == true) { return; }
             base.OnKeyDown(e);
-        }
-
-        protected override void OnGotFocus(EventArgs e)
-        {
-            base.OnGotFocus(e);
-            //Edit();
-        }
-
-        protected override void OnLostFocus(EventArgs e)
-        {
-            base.OnLostFocus(e);
         }
 
         //listen to mouse clicks to allow IClickableDataGridColumns to handle MouseDown events
@@ -793,51 +788,6 @@ namespace FMSC.Controls
                 /* do nothing */
             }
         }
-
-        private void Edit()
-        {
-            EndEdit();//end any existing edits
-
-            if (ReadOnly) { return; } //do nothing if dataGrid set to readOnly
-
-            var col = CurrentCollumn as EditableColumnBase;
-
-            if (col == null
-                || !IsColumnDisplayable(col)
-                || col.ReadOnly) { return; }
-
-            try
-            {
-                EditColumn = col;
-                var curCell = CurrentCell;
-                EditColumn.Edit(CurrencyManager
-                    , curCell.RowNumber
-                    , curCell.ColumnNumber);
-
-                IsEditing = true;
-
-                UpdateEditCell();
-            }
-            catch
-            {
-                //reset editing state, if all else fails
-                EndEdit();
-            }
-        }
-
-        private void CommitEdit()
-        {
-            if (!IsEditing || _inCommitEdit) { return; }
-
-            var editCol = EditColumn;
-            if (editCol != null)
-            {
-                _inCommitEdit = true;
-                editCol.CommitEdit();
-                _inCommitEdit = false;
-            }
-        }
-
         internal void OnEditControlLostFocus()
         {
             if (!this.Focused)
@@ -886,18 +836,39 @@ namespace FMSC.Controls
             this.HorizScrollBar.ValueChanged += new EventHandler(this.OnGridScroled);
         }
 
+        protected override void Dispose(bool disposing)
+        {
+            base.Dispose(disposing);
+            if (disposing)
+            {
+                this.UnwireGridEvents();
+                if (this.ErrorBrush != null)
+                {
+                    this.ErrorBrush.Dispose();
+                    this.ErrorBrush = null;
+                }
+                if (_altTextBrush != null)
+                {
+                    _altTextBrush.Dispose();
+                    _altTextBrush = null;
+                }
+                if (this._forePen != null)
+                {
+                    this._forePen.Dispose();
+                }
+            }
+        }
+
         #region ISupportInitialize Members
 
         //HACK Code generator automaticly puts in calls to
         //theses methods and can't be fixed, so these methods
         //must be included but do nothing.
         public void BeginInit()
-        {
-        }
+        { /*do nothing*/ }
 
         public void EndInit()
-        {
-        }
+        { /*do nothing*/ }
 
         #endregion ISupportInitialize Members
 
