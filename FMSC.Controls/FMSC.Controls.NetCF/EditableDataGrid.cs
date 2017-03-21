@@ -406,34 +406,38 @@ namespace FMSC.Controls
             //}
         }
 
-        public void MoveFirstEmptyCell()
+        public bool MoveFirstEmptyCell()
         {
             var rowIndex = this.CurrentRowIndex;
-            if (rowIndex < 0) { return; }
-            if (this.TableStyle == null) { return; }
+            if (rowIndex < 0) { return false; }
+            if (this.TableStyle == null) { return false; }
             object rowData = this.CurrencyManager.List[rowIndex];
             for (int i = 0; i < this.TableStyle.GridColumnStyles.Count; i++)
             {
-                DataGridColumnStyle col = this.TableStyle.GridColumnStyles[i];
-                if (!this.IsColumnDisplayable(col)) { continue; }
+                var col = this.TableStyle.GridColumnStyles[i] as EditableColumnBase;
+                if (col == null 
+                    || !this.IsColumnDisplayable(col)
+                    || col.ReadOnly) { continue; }
+
                 object cellValue = col.PropertyDescriptor.GetValue(rowData);
                 if (cellValue == null)
                 {
                     this.CurrentCell = new DataGridCell(rowIndex, i);
-                    return;
+                    return true;
                 }
                 Type t = cellValue.GetType();
                 if (cellValue is String && String.IsNullOrEmpty(cellValue as String))
                 {
                     this.CurrentCell = new DataGridCell(rowIndex, i);
-                    return;
+                    return true;
                 }
                 else if (t.IsValueType && object.Equals(cellValue, Activator.CreateInstance(t)))//if value is a value type(int, double, bool ....) compare cellValue to type's default vaule
                 {
                     this.CurrentCell = new DataGridCell(rowIndex, i);
-                    return;
+                    return true;
                 }
             }
+            return false;
         }
 
         public bool MoveSeclection(Direction direction)
