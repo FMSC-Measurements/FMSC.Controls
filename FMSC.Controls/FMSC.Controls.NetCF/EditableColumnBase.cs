@@ -169,11 +169,12 @@ namespace FMSC.Controls
                 if (hasChanges)
                 {
                     bool cancel = NotifyCellValidating(value);
-                    if (cancel == true) { return; }
-
-                    base.SetCellValue(this.EditRow, value);
-                    _orgValue = value;
-                    this.NotifyCellValueChanged();
+                    if (!cancel)
+                    {
+                        base.SetCellValue(this.EditRow, value);
+                        _orgValue = value;
+                        this.NotifyCellValueChanged();
+                    }
                 }
                 EndEdit();
             }
