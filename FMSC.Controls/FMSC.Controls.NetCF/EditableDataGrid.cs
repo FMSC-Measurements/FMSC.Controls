@@ -351,8 +351,7 @@ namespace FMSC.Controls
             var col = CurrentCollumn as EditableColumnBase;
 
             if (col == null
-                || !IsColumnDisplayable(col)
-                || col.ReadOnly) { return; }
+                || !IsColumnDisplayable(col)) { return; }
 
             try
             {
@@ -395,6 +394,7 @@ namespace FMSC.Controls
             if (editCol != null)
             {
                 editCol.CommitEdit();
+                editCol.EndEdit();
             }
 
             ////DataGrid recieves back focus only if it is Ending the edit

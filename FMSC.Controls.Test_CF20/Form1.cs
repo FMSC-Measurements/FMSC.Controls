@@ -16,6 +16,7 @@ namespace testBox
         EditableTextBoxColumn textBoxCol;
         EditableDateTimePickerColumn dateTimeCol;
         EditableUpDownColumn upDwnCol;
+        EditableTextBoxColumn readOnlyTextBoxCol;
 
         public Form1()
         {
@@ -40,10 +41,12 @@ namespace testBox
             textBoxCol = new EditableTextBoxColumn() { MappingName = "word", MaxTextLength = 12, GoToNextColumnWhenTextCompleate = true };
             dateTimeCol = new EditableDateTimePickerColumn() { MappingName = "date" };
             upDwnCol = new EditableUpDownColumn() { MappingName = "upDwn" };
+            readOnlyTextBoxCol = new EditableTextBoxColumn() { MappingName = "word2", ReadOnly = true };
             ts.GridColumnStyles.Add(comboBoxCol);
             ts.GridColumnStyles.Add(textBoxCol);
             ts.GridColumnStyles.Add(dateTimeCol);
             ts.GridColumnStyles.Add(upDwnCol);
+            ts.GridColumnStyles.Add(readOnlyTextBoxCol);
 
             //set up our button column and give it a event handler for button clicks
             //note the mapping name for the buttonColumn must be provided and a valid property to bind to
@@ -110,6 +113,8 @@ namespace testBox
         public int num1 { get; set; }
 
         public string word { get; set; }
+
+        public string word2 { get; set; }
 
         public string button { get; set; }
 

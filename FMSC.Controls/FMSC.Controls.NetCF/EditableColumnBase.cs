@@ -176,7 +176,6 @@ namespace FMSC.Controls
                         this.NotifyCellValueChanged();
                     }
                 }
-                EndEdit();
             }
             catch
             {
