@@ -186,57 +186,108 @@ namespace FMSC.Controls
         private void UpButton_Click(object sender, EventArgs e)
         {
             IList list = this._selectedItemsCurrencyManager.List;
-            object item = this._selectedItemsCurrencyManager.Current;
-            int index = this._selectedItemsCurrencyManager.Position;
-            if (index > 0)
+
+            if (list.Count > 1)
             {
-                int newIndex = index - 1;
-                this._SelectedListBox.BeginUpdate();
-                Swap(list, index, newIndex);
-                RefreshBindings();
-                this._SelectedListBox.EndUpdate();
-                this._SelectedListBox.ClearSelected();
-                this._SelectedListBox.SelectedIndex = newIndex;
-                OnSelectionMoved(new ItemMovedEventArgs
-                { 
-                    Direction = Direction.Up, 
-                    Item = item, 
-                    NewIndex = newIndex, 
-                    PreviousIndex = index 
-                } );
+                object item = this._selectedItemsCurrencyManager.Current;
+                int index = this._selectedItemsCurrencyManager.Position;
+                if (index > 0)
+                {
+                    int newIndex = index - 1;
+                    this._SelectedListBox.BeginUpdate();
+                    Swap(list, index, newIndex);
+                    RefreshBindings();
+                    this._SelectedListBox.EndUpdate();
+                    this._SelectedListBox.ClearSelected();
+                    this._SelectedListBox.SelectedIndex = newIndex;
+                    OnSelectionMoved(new ItemMovedEventArgs
+                    {
+                        Direction = Direction.Up,
+                        Item = item,
+                        NewIndex = newIndex,
+                        PreviousIndex = index
+                    });
+                }
+            }
+            else
+            {
+                System.Windows.Forms.MessageBox.Show("Nothing selected, list is empty.");
             }
         }
 
         private void DownButton_Click(object sender, EventArgs e)
         {
             IList list = this._selectedItemsCurrencyManager.List;
-            object item = this._selectedItemsCurrencyManager.Current;
-            int index = list.IndexOf(item);
-            if (index < list.Count - 1)
+            
+            if(list.Count > 1)
             {
-                int newIndex = index + 1;
-                this._SelectedListBox.BeginUpdate();
-                Swap(list, index, newIndex);
-                RefreshBindings();
-                this._SelectedListBox.EndUpdate();
-                this._SelectedListBox.ClearSelected();
-                this._SelectedListBox.SelectedIndex = newIndex;
-                
-                
-                OnSelectionMoved(new ItemMovedEventArgs
-                { 
-                    Direction = Direction.Down, 
-                    Item = item, 
-                    NewIndex = newIndex, 
-                    PreviousIndex = index 
-                });
+                object item = this._selectedItemsCurrencyManager.Current;
+                int index = list.IndexOf(item);
+                if (index < list.Count - 1)
+                {
+                    int newIndex = index + 1;
+                    this._SelectedListBox.BeginUpdate();
+                    Swap(list, index, newIndex);
+                    RefreshBindings();
+                    this._SelectedListBox.EndUpdate();
+                    this._SelectedListBox.ClearSelected();
+                    this._SelectedListBox.SelectedIndex = newIndex;
+
+
+                    OnSelectionMoved(new ItemMovedEventArgs
+                    {
+                        Direction = Direction.Down,
+                        Item = item,
+                        NewIndex = newIndex,
+                        PreviousIndex = index
+                    });
+                }
             }
+            else
+            {
+                System.Windows.Forms.MessageBox.Show("Nothing selected, list is empty.");
+            }
+            
         }
 
         protected void RefreshBindings()
         {
+            IList list = this._selectedItemsCurrencyManager.List;
+            IList list2 = this._CurrencyManager.List;
+
             _CurrencyManager.Refresh();
             _selectedItemsCurrencyManager.Refresh();
+            if (list.Count < 2)
+            {
+                UpButton.Enabled = false;
+                DownButton.Enabled = false;
+            }
+            else
+            {
+                UpButton.Enabled = true;
+                DownButton.Enabled = true;
+            }
+            if (list.Count < 1)
+            {
+                RemoveButton.Enabled = false;
+                RemoveAllButton.Enabled = false;
+            }
+            else
+            {
+                RemoveButton.Enabled = true;
+                RemoveAllButton.Enabled = true;
+            }
+            if (list2.Count < 1)
+            {
+                AddButton.Enabled = false;
+                AddAllButton.Enabled = false;
+            }
+            else
+            {
+                AddButton.Enabled = true;
+                AddAllButton.Enabled = true;
+            }
+            
         }
 
 
