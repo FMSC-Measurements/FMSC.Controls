@@ -132,7 +132,7 @@ namespace FMSC.Controls
         {
             var avalibleCount = _CurrencyManager?.Count ?? 0;
 
-            AddAllButton.Enabled = AddButton.Enabled = avalibleCount > 1;
+            AddAllButton.Enabled = AddButton.Enabled = avalibleCount > 0;
         }
 
         private void _selectedItemsCurrencyManager_ListChanged(object sender, ListChangedEventArgs e)
