@@ -13,20 +13,36 @@ namespace FMSC.Controls
 {
     public delegate void SelectedValueChangedEventHandler(object sender, EventArgs e, object selectedValue);
 
+    public delegate void SelectionAddedEventHandler(object sender, object item, int index);
+
+    public delegate void SelectionRemovedEventHandler(object sender, object item);
+
+    public class ItemMovedEventArgs : EventArgs
+    {
+        [Obsolete]
+        public Direction Direction { get; set; }
+
+        public object Item { get; set; }
+        public int NewIndex { get; set; }
+        public int PreviousIndex { get; set; }
+    }
+
     [LookupBindingProperties("DataSource", "DisplayMember","ValueMember", "SelectedValue")]
     public partial class OrderableAddRemoveWidget : UserControl
     {
         public OrderableAddRemoveWidget()
         {
             InitializeComponent();
-            this._SelectedListBox.SelectedValueChanged += new EventHandler(OnSelectedValueChanged);
-            this._AvailableListBox.SelectedValueChanged += new EventHandler(OnSelectedValueChanged);
+            _SelectedListBox.SelectedValueChanged += new EventHandler(OnSelectedValueChanged);
+            _AvailableListBox.SelectedValueChanged += new EventHandler(OnSelectedValueChanged);
         }
 
 
 
+
+        #region events
         [Browsable(true)]
-        public event ItemMovedEventHandler SelectionMoved;
+        public event EventHandler<ItemMovedEventArgs> SelectionMoved;
 
         [Browsable(true)]
         public event SelectionAddedEventHandler SelectionAdded;
@@ -36,9 +52,11 @@ namespace FMSC.Controls
 
         [Browsable(true)]
         public event SelectedValueChangedEventHandler SelectedValueChanged;
-        
-        //private object _dataSource;
+        #endregion events
+
         private CurrencyManager _CurrencyManager;
+        private CurrencyManager _selectedItemsCurrencyManager;
+
         [Category("Data")]
         [RefreshProperties(RefreshProperties.Repaint)]
         [DefaultValue(null)]
@@ -47,32 +65,82 @@ namespace FMSC.Controls
         {
             get
             {
-                return this._AvailableListBox.DataSource;
+                return _AvailableListBox.DataSource;
             }
             set
             {
-                this._AvailableListBox.DataSource = value;
-                if (value == null) { return; }
-                this._CurrencyManager = this._AvailableListBox.BindingContext[DataSource] as CurrencyManager;
+                OnAvalibleDataSourceChanging();
+                _AvailableListBox.DataSource = value;
+                OnAvalibleDataSourceChanged();
             }
         }
 
+        private void OnAvalibleDataSourceChanging()
+        {
+            if(_CurrencyManager != null)
+            {
+                _CurrencyManager.ListChanged -= _CurrencyManager_ListChanged;
+            }
+        }
 
-        //private object _selectedItemsDataSource;
-        private CurrencyManager _selectedItemsCurrencyManager;
+        private void OnAvalibleDataSourceChanged()
+        {
+            if (DataSource != null)
+            {
+                _CurrencyManager = _AvailableListBox.BindingContext[DataSource] as CurrencyManager;
+                _CurrencyManager.ListChanged += _CurrencyManager_ListChanged;
+                _CurrencyManager_ListChanged(null, null);
+            }
+            
+
+        }
+
         public object SelectedItemsDataSource
         {
             get
             {
-                return this._SelectedListBox.DataSource;
+                return _SelectedListBox.DataSource;
             }
 
             set
             {
-                this._SelectedListBox.DataSource = value;
-                if (value == null) { return; }
-                this._selectedItemsCurrencyManager = this._SelectedListBox.BindingContext[SelectedItemsDataSource] as CurrencyManager;
+                OnSelectedDataSourceChanging();
+                _SelectedListBox.DataSource = value;
+                OnSelectedDataSourceChanged();
             }
+        }
+
+        private void OnSelectedDataSourceChanging()
+        {
+            if(_selectedItemsCurrencyManager != null)
+            {
+                _selectedItemsCurrencyManager.ListChanged -= _selectedItemsCurrencyManager_ListChanged;
+            }
+        }
+
+        private void OnSelectedDataSourceChanged()
+        {
+            if(SelectedItemsDataSource != null)
+            {
+                _selectedItemsCurrencyManager = _SelectedListBox.BindingContext[SelectedItemsDataSource] as CurrencyManager;
+                _selectedItemsCurrencyManager.ListChanged += _selectedItemsCurrencyManager_ListChanged;
+                _selectedItemsCurrencyManager_ListChanged(null, null);
+            }
+        }
+
+        private void _CurrencyManager_ListChanged(object sender, ListChangedEventArgs e)
+        {
+            var avalibleCount = _CurrencyManager?.Count ?? 0;
+
+            AddAllButton.Enabled = AddButton.Enabled = avalibleCount > 0;
+        }
+
+        private void _selectedItemsCurrencyManager_ListChanged(object sender, ListChangedEventArgs e)
+        {
+            var selectedCount = _selectedItemsCurrencyManager?.Count ?? 0;
+
+            DownButton.Enabled = UpButton.Enabled = selectedCount > 2;
+            RemoveAllButton.Enabled = RemoveButton.Enabled = selectedCount > 1;
         }
 
 
@@ -87,8 +155,8 @@ namespace FMSC.Controls
             set 
             { 
                 _displayMember = value;
-                this._SelectedListBox.DisplayMember = value;
-                this._AvailableListBox.DisplayMember = value;
+                _SelectedListBox.DisplayMember = value;
+                _AvailableListBox.DisplayMember = value;
             }
         }
 
@@ -105,26 +173,26 @@ namespace FMSC.Controls
             set
             {
                 _ValueMember = value;
-                this._SelectedListBox.ValueMember = value;
-                this._AvailableListBox.ValueMember = value;
+                _SelectedListBox.ValueMember = value;
+                _AvailableListBox.ValueMember = value;
             }
         }
 
-        public object SelectedValue
-        {
-            get
-            {
-                return null;
-            }
-            set
-            {
-            }
-        }
+        //public object SelectedValue
+        //{
+        //    get
+        //    {
+        //        return null;
+        //    }
+        //    set
+        //    {
+        //    }
+        //}
 
         private void AddAllButton_Click(object sender, EventArgs e)
         {
-            IList list = this._CurrencyManager.List;
-            IList selList = this._selectedItemsCurrencyManager.List;
+            IList list = _CurrencyManager.List;
+            IList selList = _selectedItemsCurrencyManager.List;
             foreach (object obj in list)
             {
                 selList.Add(obj);
@@ -136,8 +204,8 @@ namespace FMSC.Controls
 
         private void RemoveAllButton_Click(object sender, EventArgs e)
         {
-            IList selList = this._selectedItemsCurrencyManager.List;
-            IList list = this._CurrencyManager.List;
+            IList selList = _selectedItemsCurrencyManager.List;
+            IList list = _CurrencyManager.List;
             foreach (object obj in selList)
             {
                 list.Add(obj);
@@ -150,8 +218,8 @@ namespace FMSC.Controls
         private void AddButton_Click(object sender, EventArgs e)
         {
             //object obj = this._CurrencyManager.Current;
-            IList selList = this._selectedItemsCurrencyManager.List;
-            IList list = this._CurrencyManager.List;
+            IList selList = _selectedItemsCurrencyManager.List;
+            IList list = _CurrencyManager.List;
 
             object[] items = new object[_AvailableListBox.SelectedItems.Count];
             _AvailableListBox.SelectedItems.CopyTo(items, 0);
@@ -159,7 +227,7 @@ namespace FMSC.Controls
             foreach (object obj in items)
             {
                 selList.Add(obj);
-                list.Remove(obj);
+                list.Remove(obj);//throws if avalible is a fixed size
                 OnSelectionAdded(this, obj, selList.Count - 1);
             }
             RefreshBindings();
@@ -168,8 +236,8 @@ namespace FMSC.Controls
         private void RemoveButton_Click(object sender, EventArgs e)
         {
             //object obj = this._selectedItemsCurrencyManager.Current;
-            IList list = this._CurrencyManager.List;
-            IList selList = this._selectedItemsCurrencyManager.List;
+            IList list = _CurrencyManager.List;
+            IList selList = _selectedItemsCurrencyManager.List;
 
             object[] items = new object[_SelectedListBox.SelectedItems.Count];
             _SelectedListBox.SelectedItems.CopyTo(items, 0);
@@ -185,52 +253,67 @@ namespace FMSC.Controls
 
         private void UpButton_Click(object sender, EventArgs e)
         {
-            IList list = this._selectedItemsCurrencyManager.List;
-            object item = this._selectedItemsCurrencyManager.Current;
-            int index = this._selectedItemsCurrencyManager.Position;
-            if (index > 0)
+            if (_selectedItemsCurrencyManager.Count > 1)
             {
-                int newIndex = index - 1;
-                this._SelectedListBox.BeginUpdate();
-                Swap(list, index, newIndex);
-                RefreshBindings();
-                this._SelectedListBox.EndUpdate();
-                this._SelectedListBox.ClearSelected();
-                this._SelectedListBox.SelectedIndex = newIndex;
-                OnSelectionMoved(new ItemMovedEventArgs
-                { 
-                    Direction = Direction.Up, 
-                    Item = item, 
-                    NewIndex = newIndex, 
-                    PreviousIndex = index 
-                } );
+                object item = _selectedItemsCurrencyManager.Current;
+                int index = _selectedItemsCurrencyManager.Position;
+                if (index > 0)
+                {
+                    int newIndex = index - 1;
+                    _SelectedListBox.BeginUpdate();
+                    Swap(_selectedItemsCurrencyManager.List, index, newIndex);
+                    RefreshBindings();
+                    _SelectedListBox.EndUpdate();
+                    _SelectedListBox.ClearSelected();
+                    _SelectedListBox.SelectedIndex = newIndex;
+                    OnSelectionMoved(new ItemMovedEventArgs
+                    {
+                        Direction = Direction.Up,
+                        Item = item,
+                        NewIndex = newIndex,
+                        PreviousIndex = index
+                    });
+                }
+            }
+            else
+            {
+                System.Windows.Forms.MessageBox.Show("Nothing selected, list is empty.");
             }
         }
 
         private void DownButton_Click(object sender, EventArgs e)
         {
-            IList list = this._selectedItemsCurrencyManager.List;
-            object item = this._selectedItemsCurrencyManager.Current;
-            int index = list.IndexOf(item);
-            if (index < list.Count - 1)
+            if(_selectedItemsCurrencyManager.Count > 1)
             {
-                int newIndex = index + 1;
-                this._SelectedListBox.BeginUpdate();
-                Swap(list, index, newIndex);
-                RefreshBindings();
-                this._SelectedListBox.EndUpdate();
-                this._SelectedListBox.ClearSelected();
-                this._SelectedListBox.SelectedIndex = newIndex;
-                
-                
-                OnSelectionMoved(new ItemMovedEventArgs
-                { 
-                    Direction = Direction.Down, 
-                    Item = item, 
-                    NewIndex = newIndex, 
-                    PreviousIndex = index 
-                });
+                IList list = _selectedItemsCurrencyManager.List;
+
+                object item = _selectedItemsCurrencyManager.Current;
+                int index = _selectedItemsCurrencyManager.Position;
+                if (index < list.Count - 1)
+                {
+                    int newIndex = index + 1;
+                    _SelectedListBox.BeginUpdate();
+                    Swap(list, index, newIndex);
+                    RefreshBindings();
+                    _SelectedListBox.EndUpdate();
+                    _SelectedListBox.ClearSelected();
+                    _SelectedListBox.SelectedIndex = newIndex;
+
+
+                    OnSelectionMoved(new ItemMovedEventArgs
+                    {
+                        Direction = Direction.Down,
+                        Item = item,
+                        NewIndex = newIndex,
+                        PreviousIndex = index
+                    });
+                }
             }
+            else
+            {
+                System.Windows.Forms.MessageBox.Show("Nothing selected, list is empty.");
+            }
+            
         }
 
         protected void RefreshBindings()
@@ -239,39 +322,30 @@ namespace FMSC.Controls
             _selectedItemsCurrencyManager.Refresh();
         }
 
-
         protected void OnSelectionMoved(ItemMovedEventArgs e)
         {
-            if(SelectionMoved != null)
-            {
-                SelectionMoved(this, e);
-            }
+            SelectionMoved?.Invoke(this, e);
         }
 
          protected void OnSelectionAdded(object sender, object item, int index)
         {
-            if(SelectionAdded != null)
-            {
-                SelectionAdded(this, item, index);
-            }
+            SelectionAdded?.Invoke(this, item, index);
         }
 
          void OnSelectedValueChanged(object sender, EventArgs e)
          {
-             if (SelectedValueChanged != null)
+            var selectedValueChanged = SelectedValueChanged;
+             if (selectedValueChanged != null)
              {
                  ListControl control = (ListControl)sender;
                  object value = control.SelectedValue;
-                 SelectedValueChanged(sender, e, value);
+                selectedValueChanged(sender, e, value);
              }
          }
 
         protected void OnSelectionRemoved(object sender, object item)
         {
-            if(SelectionRemoved != null)
-            {
-                SelectionRemoved(this, item);
-            }
+            SelectionRemoved?.Invoke(this, item);
         }
 
         private static void Swap(IList list, int i, int j)
@@ -284,19 +358,6 @@ namespace FMSC.Controls
 
     }
 
-    public delegate void ItemMovedEventHandler(object sender, ItemMovedEventArgs e);
-
-    public delegate void SelectionAddedEventHandler(object sender, object item, int index);
-
-    public delegate void SelectionRemovedEventHandler(object sender, object item); 
-
-
-    public class ItemMovedEventArgs : EventArgs
-    {
-        public Direction Direction { get; set; }
-        public object Item { get; set; }
-        public int NewIndex { get; set; }
-        public int PreviousIndex { get; set; }
-    }
+    
     
 }
