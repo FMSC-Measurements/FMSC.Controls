@@ -1,0 +1,37 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.28917.181
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{F68E8889-C7B7-4D45-976C-3F3AF1BD5CBA}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FMSC.Controls", "FMSC.Controls\FMSC.Controls.csproj", "{83CCFC7F-D667-4550-B335-B48C2F67A207}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FMSC.Controls.Test", "FMSC.Controls.Test\FMSC.Controls.Test.csproj", "{E2C6915B-54C2-447B-9C86-EBCA2B2095DF}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{83CCFC7F-D667-4550-B335-B48C2F67A207}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{83CCFC7F-D667-4550-B335-B48C2F67A207}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{83CCFC7F-D667-4550-B335-B48C2F67A207}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{83CCFC7F-D667-4550-B335-B48C2F67A207}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E2C6915B-54C2-447B-9C86-EBCA2B2095DF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E2C6915B-54C2-447B-9C86-EBCA2B2095DF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E2C6915B-54C2-447B-9C86-EBCA2B2095DF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E2C6915B-54C2-447B-9C86-EBCA2B2095DF}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {AB04C646-D6EB-429D-8898-CF0B82C5BDF7}
+	EndGlobalSection
+	GlobalSection(SubversionScc) = preSolution
+		Svn-Managed = True
+		Manager = AnkhSVN - Subversion Support for Visual Studio
+	EndGlobalSection
+EndGlobal

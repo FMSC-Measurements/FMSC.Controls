@@ -1,0 +1,36 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup Label="Assembily Info">
+    <OutputType>Library</OutputType>
+    <RootNamespace>FMSC.Controls</RootNamespace>
+    <AssemblyName>FMSC.Controls</AssemblyName>
+    <Version>1.1</Version>
+    <Copyright>CC0 Public Domain</Copyright>
+	<Company>USDA Forest Service</Company>
+    <Authors>Ben Campbell</Authors>
+  </PropertyGroup>
+
+  <PropertyGroup Label="Build Config">
+	<TargetFramework>net40</TargetFramework>
+    <Platform>Any Cpu</Platform>
+    <!--<DefineConstants>$(DefineConstants);</DefineConstants>-->
+  </PropertyGroup>
+ 
+
+  <ItemGroup>
+    <Compile Remove="FMSC.Controls.NetCF\**" />
+    <Compile Remove="Properties\AssemblyInfo*.cs" />
+    <None Remove="FMSC.Controls.NetCF\**" />
+    <None Remove="Properties\AssemblyInfo*.cs" />
+
+    <Compile Remove="*.mobile.cs" />
+    <None Remove="*.mobile.cs" />
+    
+    <EmbeddedResource Remove="FMSC.Controls.NetCF\**" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Reference Include="System.Windows.Forms" />
+  </ItemGroup>
+
+</Project>

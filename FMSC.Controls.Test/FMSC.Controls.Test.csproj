@@ -89,9 +89,9 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\FMSC.Controls\FMSC.Controls.VS15.csproj">
+    <ProjectReference Include="..\FMSC.Controls\FMSC.Controls.csproj">
       <Project>{83ccfc7f-d667-4550-b335-b48c2f67a207}</Project>
-      <Name>FMSC.Controls.VS15</Name>
+      <Name>FMSC.Controls</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
