@@ -1,4 +1,38 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+﻿Skip to content
+Search or jump to…
+Pull requests
+Issues
+Marketplace
+Explore
+ 
+@BenCamps 
+FMSC-Measurements
+/
+FMSC.Controls
+Public
+Code
+Issues
+Pull requests
+1
+Actions
+Projects
+Wiki
+Security
+1
+Insights
+Settings
+We found potential security vulnerabilities in your dependencies.
+You can see this message because you have been granted access to Dependabot alerts for this repository.
+
+FMSC.Controls/FMSC.Controls/FMSC.Controls.VS15.csproj
+@BenCamps
+BenCamps update target framwork to net462
+Latest commit 087a6a2 24 minutes ago
+ History
+ 1 contributor
+121 lines (121 sloc)  4.67 KB
+
+<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="14.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
@@ -119,3 +153,18 @@
   </Target>
   -->
 </Project>
+Footer
+© 2022 GitHub, Inc.
+Footer navigation
+Terms
+Privacy
+Security
+Status
+Docs
+Contact GitHub
+Pricing
+API
+Training
+Blog
+About
+You have unread notifications

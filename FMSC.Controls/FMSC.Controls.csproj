@@ -11,7 +11,7 @@
   </PropertyGroup>
 
   <PropertyGroup Label="Build Config">
-	<TargetFramework>net40</TargetFramework>
+	<TargetFramework>net462</TargetFramework>
     <Platform>Any Cpu</Platform>
     <!--<DefineConstants>$(DefineConstants);</DefineConstants>-->
   </PropertyGroup>
