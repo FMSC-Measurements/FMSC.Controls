@@ -2,7 +2,7 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProductVersion>9.0.30729</ProductVersion>
+    <ProductVersion>9.0.21022</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>{FF9E5A41-F83C-4D20-823B-4901876D60E3}</ProjectGuid>
     <OutputType>Library</OutputType>
@@ -58,7 +58,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Common\Enums.cs" />
-    <Compile Include="CustomForm.cs">
+    <Compile Include="CustomForm.mobile.cs">
       <SubType>Form</SubType>
     </Compile>
     <Compile Include="FMSC.Controls.NetCF\ButtonPanel.cs">
@@ -122,9 +122,11 @@
   <ItemGroup>
     <EmbeddedResource Include="FMSC.Controls.NetCF\FolderBrowserDialogCF.resx">
       <DependentUpon>FolderBrowserDialogCF.cs</DependentUpon>
+      <SubType>Designer</SubType>
     </EmbeddedResource>
     <EmbeddedResource Include="FMSC.Controls.NetCF\OpenFileDialogReduxControl.resx">
       <DependentUpon>OpenFileDialogReduxControl.cs</DependentUpon>
+      <SubType>Designer</SubType>
     </EmbeddedResource>
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CompactFramework.CSharp.targets" />
